@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 22px !important; /* Huge text & icons for accessibility */
+  }
+  html.dark body {
+    /* Force bright colors even in dark mode class */
+    background: radial-gradient(circle at 50% 0%, #f0fdf4 0%, #ecfdf5 40%, #f8fafc 100%) !important;
+    color: #0f172a !important;
+    min-height: 100vh;
+  }
+  html.light body {
+    background: radial-gradient(circle at 50% 0%, #f0fdf4 0%, #ecfdf5 40%, #f8fafc 100%);
+    color: #0f172a;
+    min-height: 100vh;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* ========================================================
+   Clean & Green Technology Glassmorphism & Surface Tokens
+   ======================================================== */
+html.dark .glass-panel {
+  background: rgba(8, 24, 18, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(16, 185, 129, 0.16);
+  box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.6), 0 0 20px -5px rgba(16, 185, 129, 0.08);
+}
+
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  box-shadow: 0 10px 30px -10px rgba(5, 150, 105, 0.08), 0 0 15px 0 rgba(16, 185, 129, 0.04);
+}
+
+/* Smart City & Environmental Background Motifs */
+.cleantech-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+html.light .cleantech-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(16, 185, 129, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.08) 1px, transparent 1px);
+}
+
+/* Eco Gradients & Highlights */
+.eco-gradient-text {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+
+.eco-gradient-btn {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+.eco-gradient-btn:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.08) 45%, transparent 70%);
+  pointer-events: none;
+  filter: blur(50px);
+}
+
+/* Micro-animations */
+@keyframes bioPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.04);
+  }
+}
+
+.animate-bioPulse {
+  animation: bioPulse 6s ease-in-out infinite;
+}
+
+@keyframes ecoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-ecoFloat {
+  animation: ecoFloat 4s ease-in-out infinite;
+}
+
+/* Light Theme Overrides */
+html.light input, 
+html.light select, 
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.light .text-white {
+  color: #064e3b !important;
+}
+
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Aggressively override ALL dark backgrounds */
+html.light [class*="bg-slate-7"],
+html.light [class*="bg-slate-8"],
+html.light [class*="bg-slate-9"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light [class*="bg-slate-900/"],
+html.light [class*="bg-slate-950/"],
+html.light [class*="bg-slate-800/"] {
+  background-color: rgba(240, 253, 244, 0.95) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+html.light [class*="border-slate-7"],
+html.light [class*="border-slate-8"],
+html.light [class*="border-slate-9"] {
+  border-color: #cbd5e1 !important;
+}
+
+/* Custom CleanTech Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #020b08;
+}
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e3a2e;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #059669;
+}
+
+/* Hide Google Translate Banner */
+.goog-te-banner-frame {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
