@@ -1,6 +1,7 @@
 import React from 'react';
 import { useData } from '../../context/DataContext';
 import { RouteOptimizerView } from '../../components/ai/RouteOptimizerView';
+import { LiveTrackingMap } from '../../components/map/LiveTrackingMap';
 import { Route, Navigation, Clock, CheckCircle2 } from 'lucide-react';
 
 export function CollectorRoutes() {
@@ -12,6 +13,10 @@ export function CollectorRoutes() {
       <div>
         <h1 className="text-2xl font-black text-white font-heading">AI Optimized Collector Routes</h1>
         <p className="text-xs text-slate-400">Intelligent node sequencing minimizing fuel consumption & travel time</p>
+      </div>
+
+      <div className="mb-6">
+        <LiveTrackingMap height="300px" label="Collector Live Location" />
       </div>
 
       <RouteOptimizerView route={route} />

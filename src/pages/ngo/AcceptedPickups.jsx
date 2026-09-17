@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { StatusBadge } from '../../components/common/Badge';
+import { InteractiveMap } from '../../components/map/InteractiveMap';
 import { Heart, Clock, MapPin, CheckCircle2 } from 'lucide-react';
 
 export function NGOAcceptedPickups() {
@@ -18,6 +19,19 @@ export function NGOAcceptedPickups() {
         <h1 className="text-2xl font-black text-white font-heading">Accepted Food Pickups</h1>
         <p className="text-xs text-slate-400">Scheduled pickups and distribution tracking for food rescue</p>
       </div>
+
+      {accepted.length > 0 && (
+        <div className="mb-6">
+          <InteractiveMap 
+            height="350px" 
+            markers={accepted.map((f, i) => ({
+              lat: 12.9716 + ((i % 5) * 0.005) - 0.01,
+              lng: 77.5946 + ((i % 3) * 0.005) - 0.005,
+              label: `${f.donorName} - ${f.foodType} (${f.status})`
+            }))} 
+          />
+        </div>
+      )}
 
       <div className="glass-panel rounded-3xl border border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">

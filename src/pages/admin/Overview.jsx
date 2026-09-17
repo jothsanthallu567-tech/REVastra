@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { useData } from '../../context/DataContext';
 import { StatCard } from '../../components/common/StatCard';
 import { WasteTrendChart } from '../../components/charts/WasteTrendChart';
@@ -18,12 +19,16 @@ import {
   FileCheck2,
   Cpu,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  MapPin,
+  Loader2
 } from 'lucide-react';
 
 export function AdminOverview() {
   const { data } = useData();
   const impact = data.impactMetrics;
+  const { municipality, loading: locLoading, getLocation } = useLiveLocation();
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -33,6 +38,23 @@ export function AdminOverview() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold">
             <ShieldCheck className="w-4 h-4" />
             <span>Urban Waste Management Directorate • Admin Control Center</span>
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Operating Zone:</span>
+            {municipality ? (
+              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                {municipality}
+              </span>
+            ) : (
+              <button 
+                onClick={getLocation} 
+                disabled={locLoading}
+                className="text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition-colors"
+              >
+                {locLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
+                {locLoading ? 'Locating Nearest Municipality...' : 'Auto-Locate Zone'}
+              </button>
+            )}
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-heading">
             REVastra Ecosystem Overview
@@ -143,11 +165,3 @@ export function AdminOverview() {
   );
 }
 
-function ShieldCheck(props) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
-      <path d="m9 12 2 2 4-4"/>
-    </svg>
-  );
-}

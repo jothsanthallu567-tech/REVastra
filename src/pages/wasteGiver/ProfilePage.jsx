@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User, Mail, Phone, MapPin, QrCode, Save, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, QrCode, Save, CheckCircle2, Loader2 } from 'lucide-react';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 
 export function WasteGiverProfile() {
   const { currentUser, updateUserProfile } = useAuth();
+  const { getLocation, loading: locationLoading } = useLiveLocation();
 
   const [formData, setFormData] = useState({
     name: currentUser?.name || '',
@@ -99,7 +101,21 @@ export function WasteGiverProfile() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Address / Location</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-semibold text-slate-300">Address / Location</label>
+            <button
+              type="button"
+              onClick={async () => {
+                const loc = await getLocation();
+                if (loc?.address) setFormData(prev => ({ ...prev, address: loc.address }));
+              }}
+              disabled={locationLoading}
+              className="text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
+            >
+              {locationLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
+              {locationLoading ? 'Locating...' : 'Use Current Location'}
+            </button>
+          </div>
           <input
             type="text"
             value={formData.address}

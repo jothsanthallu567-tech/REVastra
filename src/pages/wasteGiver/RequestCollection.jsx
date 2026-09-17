@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { AIClassifierModal } from '../../components/ai/AIClassifierModal';
-import { Truck, Sparkles, AlertCircle, ArrowRight, Leaf, ShieldAlert, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import { Truck, Sparkles, AlertCircle, ArrowRight, Leaf, ShieldAlert, ChevronDown, ChevronUp, AlertTriangle, MapPin, Loader2 } from 'lucide-react';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 
 export function RequestCollection() {
   const { currentUser } = useAuth();
@@ -17,7 +18,10 @@ export function RequestCollection() {
   const [requestedDate, setRequestedDate] = useState(
     new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16)
   );
+  const [address, setAddress] = useState(currentUser?.address || '');
   const [notes, setNotes] = useState('Clean & segregated for recovery dock verification.');
+
+  const { getLocation, loading: locationLoading } = useLiveLocation();
 
   const [showAIModal, setShowAIModal] = useState(false);
   const [showProhibitedInfo, setShowProhibitedInfo] = useState(true);
@@ -39,6 +43,7 @@ export function RequestCollection() {
       estimatedQty: Number(estimatedQty),
       unit: 'kg',
       requestedDate,
+      address,
       notes
     });
 
@@ -150,6 +155,36 @@ export function RequestCollection() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Address Row */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-semibold text-slate-300 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+              Pickup Address *
+            </label>
+            <button
+              type="button"
+              onClick={async () => {
+                const loc = await getLocation();
+                if (loc?.address) setAddress(loc.address);
+              }}
+              disabled={locationLoading}
+              className="text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
+            >
+              {locationLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
+              {locationLoading ? 'Locating...' : 'Use Current Location'}
+            </button>
+          </div>
+          <input
+            type="text"
+            required
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Complete address, Sector, City"
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500"
+          />
         </div>
 
         {/* Quantity & Date Row */}

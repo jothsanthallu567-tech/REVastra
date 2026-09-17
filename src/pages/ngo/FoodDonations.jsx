@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { Modal } from '../../components/common/Modal';
 import { StatusBadge } from '../../components/common/Badge';
+import { InteractiveMap } from '../../components/map/InteractiveMap';
 import {
   Heart,
   Clock,
@@ -45,6 +46,12 @@ export function NGOFoodDonations() {
   });
 
   const totalAvailableServings = availableDonations.reduce((acc, f) => acc + (f.peopleServed || 0), 0);
+
+  const mapMarkers = filteredAvailable.map((f, i) => ({
+    lat: 12.9716 + ((i % 5) * 0.005) - 0.01,
+    lng: 77.5946 + ((i % 3) * 0.005) - 0.005,
+    label: `${f.donorName} - ${f.foodType} (${f.peopleServed} servings)`
+  }));
 
   const handleAcceptConfirm = () => {
     if (!selectedDonation) return;
@@ -153,6 +160,13 @@ export function NGOFoodDonations() {
           Showing <strong className="text-white">{filteredAvailable.length}</strong> pending donations
         </span>
       </div>
+
+      {/* Map View */}
+      {filteredAvailable.length > 0 && (
+        <div className="mb-6">
+          <InteractiveMap height="350px" markers={mapMarkers} />
+        </div>
+      )}
 
       {/* Available Listings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

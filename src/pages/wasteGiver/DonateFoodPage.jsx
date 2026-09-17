@@ -18,8 +18,10 @@ import {
   Send,
   Calendar,
   XCircle,
-  Truck
+  Truck,
+  Loader2
 } from 'lucide-react';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 
 const PRESET_TEMPLATES = [
   {
@@ -57,6 +59,7 @@ const PRESET_TEMPLATES = [
 export function DonateFoodPage() {
   const { currentUser } = useAuth();
   const { data, createFoodDonation } = useData();
+  const { getLocation, loading: locationLoading } = useLiveLocation();
 
   const [donorCategory, setDonorCategory] = useState(currentUser?.sourceType || 'Household');
   const [foodType, setFoodType] = useState('');
@@ -332,10 +335,24 @@ export function DonateFoodPage() {
               {/* Pickup Address & Contact */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                    Doorstep Pickup Address *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-slate-300 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                      Doorstep Pickup Address *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const loc = await getLocation();
+                        if (loc?.address) setPickupLocation(loc.address);
+                      }}
+                      disabled={locationLoading}
+                      className="text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      {locationLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
+                      {locationLoading ? 'Locating...' : 'Use Current Location'}
+                    </button>
+                  </div>
                   <input
                     type="text"
                     required
