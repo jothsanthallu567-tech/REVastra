@@ -1,16 +1,49 @@
-# React + Vite
+# REVastra
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+REVastra is a comprehensive, circular-economy platform designed to streamline waste management, facilitate food donations, and promote sustainability through an integrated tracking and reward system. 
 
-Currently, two official plugins are available:
+## 🌟 Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+*   **Role-Based Dashboards**: Tailored experiences and tools for multiple stakeholders:
+    *   **Waste Givers**: Request collections, donate surplus food, track personal landfill impact, and earn grocery rewards.
+    *   **Collectors**: Optimize collection routes, scan QR codes for traceability, and manage pickup requests.
+    *   **Buyers**: Access a marketplace for recycled materials, place orders, and trace batches.
+    *   **NGOs**: Manage food donation pickups and track social impact.
+    *   **Recovery Centres**: Handle waste segregation, weighing, and material distribution.
+    *   **Admins**: Oversee system analytics, revenue dashboards, user management, and AI suite integrations.
+*   **End-to-End Traceability**: QR code generation and scanning integration (`html5-qrcode`) to track waste from source to recovery.
+*   **Green Coin System**: A built-in calculator and wallet to incentivize eco-friendly actions (e.g., donating food or proper waste disposal).
+*   **Data & Analytics**: Interactive charts (`recharts`) to visualize material distribution, waste trends, and revenue.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **Frontend Framework**: React 19 + Vite
+*   **Styling**: Tailwind CSS v4
+*   **Backend & DB**: Firebase
+*   **Data Visualization**: Recharts
+*   **QR & Barcode**: HTML5-QRCode, qrcode.react
+*   **Icons**: Lucide React
 
-## Expanding the Oxlint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/jothsanthallu567-tech/REVastra.git
+   cd REVastra
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📄 License
+This project is currently private and all rights are reserved.
