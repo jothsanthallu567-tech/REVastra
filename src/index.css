@@ -5,9 +5,8 @@
     font-size: 22px !important; /* Huge text & icons for accessibility */
   }
   html.dark body {
-    /* Force bright colors even in dark mode class */
-    background: radial-gradient(circle at 50% 0%, #f0fdf4 0%, #ecfdf5 40%, #f8fafc 100%) !important;
-    color: #0f172a !important;
+    background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 40%, #020617 100%);
+    color: #f8fafc;
     min-height: 100vh;
   }
   html.light body {
