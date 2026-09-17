@@ -11,13 +11,11 @@ export async function sendMobileOTP(phoneNumber) {
   // Simulated Network Request
   return new Promise((resolve) => {
     setTimeout(() => {
-      // In production, make a fetch request here:
-      // fetch('https://api.your-otp-provider.com/v1/send', {
-      //   method: 'POST',
-      //   headers: { 'Authorization': `Bearer ${API_KEY}` },
-      //   body: JSON.stringify({ to: phoneNumber, message: 'Your REVastra OTP is 123456' })
-      // })
-      resolve({ success: true, message: 'OTP Sent successfully. (Use 123456 for testing)' });
+      // Show an alert so the user "receives" the OTP on their screen
+      if (typeof window !== 'undefined') {
+        window.alert(`[TEST SMS to ${phoneNumber}]\n\nYour REVastra Mobile OTP is: 123456`);
+      }
+      resolve({ success: true, message: 'OTP Sent successfully. (Check your screen alerts)' });
     }, 1500);
   });
 }
@@ -32,7 +30,11 @@ export async function sendEmailOTP(emailAddress) {
   // Simulated Network Request
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve({ success: true, message: 'OTP Sent successfully. (Use 123456 for testing)' });
+      // Show an alert so the user "receives" the OTP on their screen
+      if (typeof window !== 'undefined') {
+        window.alert(`[TEST EMAIL to ${emailAddress}]\n\nYour REVastra Email OTP is: 123456`);
+      }
+      resolve({ success: true, message: 'OTP Sent successfully. (Check your screen alerts)' });
     }, 1500);
   });
 }
