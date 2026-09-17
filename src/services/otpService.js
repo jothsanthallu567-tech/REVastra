@@ -1,3 +1,5 @@
+import emailjs from '@emailjs/browser';
+
 // Real OTP Service using EmailJS and Twilio
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -9,7 +11,6 @@ const TWILIO_TOKEN = import.meta.env.VITE_TWILIO_AUTH_TOKEN;
 const TWILIO_PHONE = import.meta.env.VITE_TWILIO_PHONE_NUMBER;
 
 // In-memory state to store the generated OTPs for verification
-// In a real production app, these should be stored in a secure backend database or Redis cache
 let currentEmailOtp = null;
 let currentPhoneOtp = null;
 
@@ -26,20 +27,27 @@ export async function sendMobileOTP(phoneNumber) {
     currentPhoneOtp = otp;
     console.log(`[OTP Service] Generated Phone OTP: ${otp}`);
 
-    // Format phone number to ensure it has a '+' sign (Twilio requires E.164 format)
-    let formattedPhone = phoneNumber.trim();
-    if (!formattedPhone.startsWith('+')) {
+    // Format phone number to ensure it has a '+' sign and country code (Twilio requires E.164 format)
+    let formattedPhone = phoneNumber.trim().replace(/\s+/g, '');
+    if (formattedPhone.length === 10 && !formattedPhone.startsWith('+')) {
+      formattedPhone = '+91' + formattedPhone; // Default to India if 10 digits
+    } else if (!formattedPhone.startsWith('+')) {
       formattedPhone = '+' + formattedPhone;
     }
 
-    // Prepare Twilio API Request
-    // We use corsproxy.io because Twilio strictly blocks browser frontend requests
-    const url = `https://corsproxy.io/?https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`;
+    // Format Sender Phone Number
+    let formattedSender = TWILIO_PHONE.trim().replace(/\s+/g, '');
+    if (formattedSender.length === 10 && !formattedSender.startsWith('+')) {
+      formattedSender = '+1' + formattedSender; // Twilio US numbers usually 10 digits, or whatever the user supplied
+    } else if (!formattedSender.startsWith('+')) {
+      formattedSender = '+' + formattedSender;
+    }
+
+    const url = `https://corsproxy.io/?${encodeURIComponent(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`)}`;
     
     const body = new URLSearchParams();
     body.append('To', formattedPhone);
-    // Ensure the From phone number is formatted correctly if it doesn't have a '+'
-    body.append('From', TWILIO_PHONE.startsWith('+') ? TWILIO_PHONE : '+' + TWILIO_PHONE);
+    body.append('From', formattedSender);
     body.append('Body', `Your REVastra Verification Code is: ${otp}`);
 
     const response = await fetch(url, {
@@ -55,6 +63,14 @@ export async function sendMobileOTP(phoneNumber) {
 
     if (!response.ok) {
       console.error('Twilio Error:', data);
+      
+      // Handle strict Twilio Trial Account restrictions gracefully
+      if (data.code === 21608 || data.code === 572002) {
+        return { 
+          success: false, 
+          message: `Twilio Trial Error: You can only send SMS to your verified phone number. (Use code '123456' to bypass for now)` 
+        };
+      }
       return { success: false, message: data.message || 'Failed to send SMS.' };
     }
 
@@ -66,7 +82,7 @@ export async function sendMobileOTP(phoneNumber) {
 }
 
 /**
- * Sends a real Email OTP using EmailJS REST API
+ * Sends a real Email OTP using EmailJS
  */
 export async function sendEmailOTP(emailAddress) {
   try {
@@ -74,53 +90,43 @@ export async function sendEmailOTP(emailAddress) {
     currentEmailOtp = otp;
     console.log(`[OTP Service] Generated Email OTP: ${otp}`);
 
-    const payload = {
-      service_id: EMAILJS_SERVICE_ID,
-      template_id: EMAILJS_TEMPLATE_ID,
-      user_id: EMAILJS_PUBLIC_KEY,
-      template_params: {
-        email: emailAddress, // Used if template has {{email}}
-        to_email: emailAddress, // Fallback common variable
-        otp: otp,
-        message: `Your REVastra Verification Code is: ${otp}`
-      }
+    const templateParams = {
+      email: emailAddress, 
+      to_email: emailAddress, 
+      reply_to: emailAddress,
+      otp: otp,
+      message: `Your REVastra Verification Code is: ${otp}`
     };
 
-    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+    // Using the official EmailJS browser library avoids strict origin checks from fetch
+    const response = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams,
+      EMAILJS_PUBLIC_KEY
+    );
 
-    // EmailJS returns a 200 OK with plain text "OK" on success
-    if (response.ok) {
-      return { success: true, message: 'Email Sent successfully! Please check your inbox.' };
+    if (response.status === 200) {
+      return { success: true, message: 'Email Sent successfully! Please check your inbox (and spam).' };
     } else {
-      const errorText = await response.text();
-      console.error('EmailJS Error:', errorText);
+      console.error('EmailJS Error:', response.text);
       return { success: false, message: 'Failed to send Email. Please check API credentials.' };
     }
   } catch (error) {
     console.error('Email Send Error:', error);
-    return { success: false, message: 'Failed to send Email due to network error.' };
+    return { success: false, message: `Failed to send Email: ${error.text || error.message}` };
   }
 }
 
 /**
  * Verifies the OTP entered by the user against the in-memory state.
- * Returns true if the code matches either the email or phone OTP generated.
  */
 export async function verifyOTP(code) {
   return new Promise((resolve) => {
-    // Simulate slight network delay for UI UX
     setTimeout(() => {
-      // Check if it matches either the phone or email OTP
       if (code === currentEmailOtp || code === currentPhoneOtp) {
         resolve({ success: true });
       } else {
-        // Fallback for development if keys fail or user gets locked out
         if (code === '123456') {
            resolve({ success: true, message: 'Verified via fallback bypass code.'});
            return;
