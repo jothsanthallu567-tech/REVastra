@@ -27,7 +27,7 @@ export function VerifySourcePage() {
   const [searchParams] = useSearchParams();
   const { code: routeCode } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, login } = useAuth();
   const { data, recordPickup, requestCollection } = useData();
 
   const codeQuery = searchParams.get('code') || routeCode || 'QR-WG-1001';
@@ -89,24 +89,16 @@ export function VerifySourcePage() {
     setSubmitting(true);
 
     try {
-      let targetCol = pendingRequests[0];
-
-      // If no open collection exists, create one and immediately record pickup
-      if (!targetCol) {
-        targetCol = requestCollection({
-          giverId: matchedUser?.id || 'usr-giver-1',
-          giverName: matchedUser?.name || source.name,
-          sourceType: source.type || 'Household',
-          qrCode: activeCode,
-          materialId: selectedMaterial,
-          materialName: matName,
-          estimatedQty: Number(weightKg) || 1,
-          notes: notes
-        });
-      }
+      const targetCol = pendingRequests[0];
 
       const earned = recordPickup({
-        collectionId: targetCol.id,
+        collectionId: targetCol?.id,
+        giverId: matchedUser?.id || 'usr-giver-1',
+        giverName: matchedUser?.name || source.name,
+        sourceType: source.type || 'Household',
+        qrCode: activeCode,
+        materialId: selectedMaterial,
+        materialName: matName,
         actualQty: Number(weightKg),
         notes: notes,
         segregated: isSegregated
@@ -114,7 +106,7 @@ export function VerifySourcePage() {
 
       setPickupResult({
         success: true,
-        collectionId: targetCol.id,
+        collectionId: targetCol?.id || `COL-${activeCode}`,
         weight: weightKg,
         coinsEarned: earned?.totalCoins || provisionalEst.provisionalCoins,
         rupeeValue: coinsToRupees(earned?.totalCoins || provisionalEst.provisionalCoins),
@@ -275,20 +267,32 @@ export function VerifySourcePage() {
           {/* Right: Doorstep Weighed Pickup Logger (7 Cols) */}
           <div className="lg:col-span-7">
             {(!currentUser || (currentUser.role !== 'collector' && currentUser.role !== 'admin')) ? (
-              <div className="glass-panel p-8 rounded-3xl border border-rose-500/40 bg-rose-950/20 flex flex-col items-center justify-center text-center space-y-4 shadow-2xl h-full">
-                <div className="p-4 bg-rose-500/10 text-rose-400 rounded-full">
+              <div className="glass-panel p-8 rounded-3xl border border-blue-500/30 bg-slate-900/90 flex flex-col items-center justify-center text-center space-y-4 shadow-2xl h-full">
+                <div className="p-4 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20">
                   <ShieldCheck className="w-10 h-10" />
                 </div>
-                <h3 className="text-xl font-bold text-white font-heading">Access Restricted</h3>
-                <p className="text-sm text-slate-300 max-w-md">
-                  You are viewing a secure waste generator QR code. To log a collection or record weight, you must be logged in as an <strong>Authorized Collector</strong>.
+                <h3 className="text-xl font-bold text-white font-heading">Collector Terminal Authentication</h3>
+                <p className="text-xs text-slate-300 max-w-md">
+                  You are viewing <strong>{matchedUser?.name || source.name}</strong>'s verified QR code. To weigh waste and award Green Coins, authenticate as an authorized collector.
                 </p>
-                <NavLink
-                  to="/auth"
-                  className="mt-4 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-sm font-bold text-white shadow-xl shadow-emerald-600/30 transition-all inline-block"
-                >
-                  Log in to Collector Portal
-                </NavLink>
+                
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 w-full max-w-xs">
+                  <button
+                    type="button"
+                    onClick={() => login('ramesh@revastra-collector.org', 'collector123', 'collector')}
+                    className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Truck className="w-4 h-4" />
+                    <span>⚡ Quick-Auth as Ramesh (Collector)</span>
+                  </button>
+
+                  <NavLink
+                    to="/login/collector"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors text-center"
+                  >
+                    Custom Login
+                  </NavLink>
+                </div>
               </div>
             ) : (
               <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6 shadow-2xl h-full">

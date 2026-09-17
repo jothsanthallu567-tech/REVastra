@@ -93,6 +93,7 @@ export default function App() {
                 <Route path="/source/:code" element={<VerifySourcePage />} />
 
                 {/* Auth Layout Routes */}
+                <Route path="/auth" element={<Navigate to="/role-selection" replace />} />
                 <Route element={<AuthLayout />}>
                   <Route path="/login/:role" element={<LoginPage />} />
                   <Route path="/signup/:role" element={<SignupPage />} />

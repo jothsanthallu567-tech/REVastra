@@ -26,9 +26,13 @@ export function MyQRPage() {
   const [showConfig, setShowConfig] = useState(false);
 
   // Network IP / Localhost URL configuration
-  const detectedOrigin = typeof window !== 'undefined' ? window.location.origin : DEFAULT_NETWORK_HOST;
+  const detectedOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://10.87.201.156:5173';
   const [hostUrl, setHostUrl] = useState(() => {
-    return localStorage.getItem('revastra_qr_host') || DEFAULT_NETWORK_HOST;
+    const saved = localStorage.getItem('revastra_qr_host');
+    if (saved && !saved.includes('172.23.249.30')) {
+      return saved;
+    }
+    return detectedOrigin;
   });
 
   const rawQrCode = currentUser?.qrCode || 'QR-WG-1001';
@@ -212,19 +216,19 @@ export function MyQRPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[10px] text-slate-400">Quick Presets:</span>
                 <button
-                  onClick={() => handleSaveHost('http://172.23.249.30:5173')}
+                  onClick={() => handleSaveHost(window.location.origin)}
                   className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono hover:bg-emerald-500/20"
                 >
-                  http://172.23.249.30:5173
+                  Current Browser ({window.location.origin})
                 </button>
                 <button
-                  onClick={() => handleSaveHost(detectedOrigin)}
+                  onClick={() => handleSaveHost('https://10.87.201.156:5173')}
                   className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/30 text-[10px] font-mono hover:bg-blue-500/20"
                 >
-                  {detectedOrigin}
+                  Wi-Fi Network (https://10.87.201.156:5173)
                 </button>
               </div>
             </div>

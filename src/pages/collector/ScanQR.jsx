@@ -220,25 +220,17 @@ export function ScanQRPage() {
     setSubmitting(true);
 
     try {
-      let targetCollection = matchedCollection;
-
-      // If no open collection request existed, auto-create one and log pickup
-      if (!targetCollection) {
-        targetCollection = requestCollection({
-          giverId: matchedUser?.id || 'usr-giver-1',
-          giverName: matchedUser?.name || matchedSource?.name || 'Verified Generator',
-          sourceType: matchedSource?.type || matchedUser?.sourceType || 'Household',
-          qrCode: scannedCode,
-          materialId: selectedMaterial,
-          materialName: currentRateObj.name,
-          estimatedQty: Number(actualQty) || 1,
-          notes: notes
-        });
-      }
+      const targetCollection = matchedCollection;
 
       const earned = recordPickup({
-        collectionId: targetCollection.id,
-        actualQty: Number(actualQty),
+        collectionId: targetCollection?.id,
+        giverId: matchedUser?.id || 'usr-giver-1',
+        giverName: matchedUser?.name || matchedSource?.name || 'Verified Generator',
+        sourceType: matchedSource?.type || matchedUser?.sourceType || 'Household',
+        qrCode: scannedCode,
+        materialId: selectedMaterial,
+        materialName: currentRateObj.name,
+        actualQty: Number(actualQty) || 1,
         notes,
         segregated
       });
@@ -247,7 +239,7 @@ export function ScanQRPage() {
 
       setTimeout(() => {
         navigate('/collector/dashboard');
-      }, 2500);
+      }, 2200);
     } catch (err) {
       console.error('Pickup record error:', err);
       alert('Pickup recorded successfully and forwarded to Recovery Centre!');
@@ -416,8 +408,8 @@ export function ScanQRPage() {
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Or paste QR Code / URL (e.g. QR-WG-1001 or http://172.23.249.30:5173/verify-source?code=...)"
-                value={scannedCode}
+                placeholder="Or paste QR Code / URL (e.g. QR-WG-1001 or https://10.87.201.156:5173/verify-source?code=...)"
+                value={scannedCode || ''}
                 onChange={(e) => handleCodeResolution(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
               />

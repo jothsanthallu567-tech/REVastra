@@ -184,20 +184,29 @@ export function DataProvider({ children }) {
   };
 
   // 2. Collector: Accept & Record Pickup (Awards Provisional Grade-B Coins)
-  const recordPickup = ({ collectionId, actualQty, notes, segregated = true }) => {
+  const recordPickup = ({
+    collectionId,
+    giverId,
+    giverName,
+    sourceType,
+    qrCode,
+    materialId,
+    materialName,
+    actualQty,
+    notes,
+    segregated = true
+  }) => {
     let earnedInfo = null;
 
     updateStore((prev) => {
-      const colIndex = prev.collections.findIndex((c) => c.id === collectionId);
-      if (colIndex === -1) return prev;
-
-      const targetCol = prev.collections[colIndex];
-      const giverUser = prev.users.find((u) => u.id === targetCol.giverId);
-      const measuredQty = Number(actualQty);
+      let colIndex = prev.collections.findIndex((c) => c.id === collectionId);
+      let targetCol;
+      const measuredQty = Number(actualQty) || 1;
 
       // 1. Calculate Provisional Grade-B Base Coins
       const ratesConfig = prev.coinRatesConfig || DEFAULT_MATERIAL_RATES;
-      const provisionalCalc = calculateProvisionalCoins(targetCol.materialId, measuredQty, ratesConfig);
+      const effectiveMatId = materialId || (colIndex !== -1 ? prev.collections[colIndex].materialId : 'mat-plastic');
+      const provisionalCalc = calculateProvisionalCoins(effectiveMatId, measuredQty, ratesConfig);
       const provisionalCoins = provisionalCalc.totalCoins || 0;
 
       earnedInfo = {
@@ -209,25 +218,52 @@ export function DataProvider({ children }) {
         isProvisional: true
       };
 
-      const updatedCol = {
-        ...targetCol,
-        actualQty: measuredQty,
-        collectedDate: new Date().toISOString().slice(0, 16).replace('T', ' '),
-        status: 'Sent to Recovery Centre',
-        segregated,
-        notes: notes || targetCol.notes,
-        coinsEarned: provisionalCoins,
-        provisionalCoins: provisionalCoins,
-        finalCoinsEarned: null,
-        isProvisional: true
-      };
+      if (colIndex === -1) {
+        targetCol = {
+          id: collectionId || `COL-2026-${Math.floor(8900 + Math.random() * 1000)}`,
+          giverId: giverId || 'usr-giver-1',
+          giverName: giverName || 'Verified Generator',
+          sourceType: sourceType || 'Household',
+          qrCode: qrCode || 'QR-WG-1001',
+          collectorId: 'usr-collector-1',
+          collectorName: 'Ramesh Kumar',
+          materialId: effectiveMatId,
+          materialName: materialName || (ratesConfig[effectiveMatId]?.name || 'Plastic'),
+          estimatedQty: measuredQty,
+          actualQty: measuredQty,
+          unit: 'kg',
+          status: 'Sent to Recovery Centre',
+          requestedDate: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          collectedDate: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          segregated,
+          notes: notes || 'Verified clean sorted dry waste at generator doorstep.',
+          coinsEarned: provisionalCoins,
+          provisionalCoins: provisionalCoins,
+          finalCoinsEarned: null,
+          isProvisional: true
+        };
+      } else {
+        targetCol = {
+          ...prev.collections[colIndex],
+          actualQty: measuredQty,
+          collectedDate: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          status: 'Sent to Recovery Centre',
+          segregated,
+          notes: notes || prev.collections[colIndex].notes,
+          coinsEarned: provisionalCoins,
+          provisionalCoins: provisionalCoins,
+          finalCoinsEarned: null,
+          isProvisional: true
+        };
+      }
 
-      const updatedCollections = [...prev.collections];
-      updatedCollections[colIndex] = updatedCol;
+      const updatedCollections = colIndex === -1
+        ? [targetCol, ...prev.collections]
+        : prev.collections.map((c, idx) => (idx === colIndex ? targetCol : c));
 
       // Credit Provisional Coins to Waste Giver
       const updatedUsers = prev.users.map((u) => {
-        if (u.id === targetCol.giverId) {
+        if (u.id === targetCol.giverId || (targetCol.qrCode && u.qrCode === targetCol.qrCode)) {
           const updGiver = {
             ...u,
             greenCoinsBalance: (u.greenCoinsBalance || 0) + provisionalCoins
@@ -278,7 +314,7 @@ export function DataProvider({ children }) {
       };
 
       // Firestore Sync
-      syncDocToFirestore('wasteCollections', updatedCol.id, updatedCol).catch(() => {});
+      syncDocToFirestore('wasteCollections', targetCol.id, targetCol).catch(() => {});
       syncDocToFirestore('impactMetrics', 'liveSummary', updatedImpact).catch(() => {});
 
       return {

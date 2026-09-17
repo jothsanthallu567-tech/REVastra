@@ -1,4 +1,4 @@
-export const DEFAULT_NETWORK_HOST = 'http://172.23.249.30:5173';
+export const DEFAULT_NETWORK_HOST = typeof window !== 'undefined' ? window.location.origin : 'https://10.87.201.156:5173';
 
 export function generateSourceQR(userOrSource) {
   if (userOrSource && userOrSource.qrCode) return userOrSource.qrCode;
@@ -7,7 +7,11 @@ export function generateSourceQR(userOrSource) {
 }
 
 export function getSourceQRUrl(qrCode, customHost) {
-  const host = (customHost || (typeof window !== 'undefined' && window.location.origin) || DEFAULT_NETWORK_HOST).replace(/\/+$/, '');
+  let host = customHost;
+  if (!host || host.includes('172.23.249.30')) {
+    host = (typeof window !== 'undefined' && window.location.origin) || DEFAULT_NETWORK_HOST;
+  }
+  host = host.replace(/\/+$/, '');
   return `${host}/verify-source?code=${encodeURIComponent(qrCode || 'QR-WG-1001')}`;
 }
 
