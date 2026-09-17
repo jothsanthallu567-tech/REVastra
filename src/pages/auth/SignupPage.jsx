@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserPlus, AlertCircle, ArrowRight, ShieldAlert, MapPin, Loader2 } from 'lucide-react';
+import { UserPlus, AlertCircle, ArrowRight, ShieldAlert, MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import { sendMobileOTP, sendEmailOTP, verifyOTP } from '../../services/otpService';
 
 export function SignupPage() {
   const { role } = useParams(); // waste-giver | collector | buyer | ngo | admin
@@ -25,6 +26,39 @@ export function SignupPage() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [phoneOtp, setPhoneOtp] = useState({ sent: false, verified: false, loading: false, value: '', msg: '' });
+  const [emailOtp, setEmailOtp] = useState({ sent: false, verified: false, loading: false, value: '', msg: '' });
+
+  const handleSendPhoneOTP = async () => {
+    if (!formData.phone) return;
+    setPhoneOtp(p => ({ ...p, loading: true, msg: '' }));
+    const res = await sendMobileOTP(formData.phone);
+    setPhoneOtp(p => ({ ...p, sent: true, loading: false, msg: res.message }));
+  };
+
+  const handleVerifyPhoneOTP = async () => {
+    if (!phoneOtp.value) return;
+    setPhoneOtp(p => ({ ...p, loading: true }));
+    const res = await verifyOTP(phoneOtp.value);
+    if (res.success) setPhoneOtp(p => ({ ...p, verified: true, loading: false, msg: 'Phone verified successfully!' }));
+    else setPhoneOtp(p => ({ ...p, loading: false, msg: res.message }));
+  };
+
+  const handleSendEmailOTP = async () => {
+    if (!formData.email) return;
+    setEmailOtp(p => ({ ...p, loading: true, msg: '' }));
+    const res = await sendEmailOTP(formData.email);
+    setEmailOtp(p => ({ ...p, sent: true, loading: false, msg: res.message }));
+  };
+
+  const handleVerifyEmailOTP = async () => {
+    if (!emailOtp.value) return;
+    setEmailOtp(p => ({ ...p, loading: true }));
+    const res = await verifyOTP(emailOtp.value);
+    if (res.success) setEmailOtp(p => ({ ...p, verified: true, loading: false, msg: 'Email verified successfully!' }));
+    else setEmailOtp(p => ({ ...p, loading: false, msg: res.message }));
+  };
 
   if (targetRole === 'admin') {
     return (
@@ -100,29 +134,109 @@ export function SignupPage() {
 
         <div>
           <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
-          <input
-            type="email"
-            required
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="user@domain.com"
-            className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
-          />
+          <div className="flex gap-2">
+            <input
+              type="email"
+              required
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={emailOtp.verified || emailOtp.sent}
+              placeholder="user@domain.com"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
+            />
+            {!emailOtp.verified && !emailOtp.sent && (
+              <button
+                type="button"
+                onClick={handleSendEmailOTP}
+                disabled={!formData.email || emailOtp.loading}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {emailOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Send OTP'}
+              </button>
+            )}
+            {emailOtp.verified && (
+              <span className="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 text-xs font-bold">
+                <CheckCircle2 className="w-4 h-4" /> Verified
+              </span>
+            )}
+          </div>
+          {emailOtp.sent && !emailOtp.verified && (
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                value={emailOtp.value}
+                onChange={(e) => setEmailOtp(p => ({ ...p, value: e.target.value }))}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={handleVerifyEmailOTP}
+                disabled={emailOtp.loading || !emailOtp.value}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {emailOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Verify'}
+              </button>
+            </div>
+          )}
+          {emailOtp.msg && (
+            <p className={`mt-1 text-[10px] ${emailOtp.verified ? 'text-emerald-400' : 'text-slate-400'}`}>{emailOtp.msg}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
-            <input
-              type="text"
-              required
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="+91 98765 43210"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                required
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                disabled={phoneOtp.verified || phoneOtp.sent}
+                placeholder="+91 98765 43210"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
+              />
+              {!phoneOtp.verified && !phoneOtp.sent && (
+                <button
+                  type="button"
+                  onClick={handleSendPhoneOTP}
+                  disabled={!formData.phone || phoneOtp.loading}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {phoneOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Send OTP'}
+                </button>
+              )}
+              {phoneOtp.verified && (
+                <span className="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 text-xs font-bold">
+                  <CheckCircle2 className="w-4 h-4" /> Verified
+                </span>
+              )}
+            </div>
+            {phoneOtp.sent && !phoneOtp.verified && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit OTP"
+                  value={phoneOtp.value}
+                  onChange={(e) => setPhoneOtp(p => ({ ...p, value: e.target.value }))}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleVerifyPhoneOTP}
+                  disabled={phoneOtp.loading || !phoneOtp.value}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {phoneOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Verify'}
+                </button>
+              </div>
+            )}
+            {phoneOtp.msg && (
+              <p className={`mt-1 text-[10px] ${phoneOtp.verified ? 'text-emerald-400' : 'text-slate-400'}`}>{phoneOtp.msg}</p>
+            )}
           </div>
 
           {targetRole === 'waste-giver' && (
@@ -221,11 +335,20 @@ export function SignupPage() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2"
+          disabled={loading || !emailOtp.verified || !phoneOtp.verified}
+          className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'Creating Account & Generating Identity...' : 'Complete Registration'}
-          <ArrowRight className="w-4 h-4" />
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Creating Account...
+            </span>
+          ) : (
+            <>
+              {!emailOtp.verified || !phoneOtp.verified ? 'Verify Email & Phone to Continue' : 'Complete Registration'}
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
         </button>
       </form>
 
