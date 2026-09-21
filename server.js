@@ -3,6 +3,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 import twilio from 'twilio';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -15,9 +20,9 @@ app.use(cors());
 app.use(express.json());
 
 // Twilio Verify Credentials
-const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
-const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-let VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SERVICE_SID;
+const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID || process.env.VITE_TWILIO_ACCOUNT_SID;
+const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN || process.env.VITE_TWILIO_AUTH_TOKEN;
+let VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SERVICE_SID || process.env.VITE_TWILIO_VERIFY_SERVICE_SID;
 
 const isTwilioConfigured = Boolean(
   TWILIO_SID &&
@@ -296,6 +301,20 @@ app.post('/api/verify-otp', handleVerifyOtp);
 // Backwards-compatible aliases
 app.post('/api/otp/send', handleSendOtp);
 app.post('/api/otp/verify', handleVerifyOtp);
+
+// Serve frontend static build files (for Render deployment & production mode)
+const distPath = path.join(__dirname, 'dist');
+app.use(express.static(distPath));
+
+// Fallback all SPA React routes to index.html
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    return res.sendFile(path.join(distPath, 'index.html'), (err) => {
+      if (err) next();
+    });
+  }
+  next();
+});
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {

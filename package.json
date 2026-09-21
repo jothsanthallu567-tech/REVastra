@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "start": "serve -s dist -l tcp://0.0.0.0:$PORT"
+    "start": "node server.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
