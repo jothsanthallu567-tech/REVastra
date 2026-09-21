@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserPlus, AlertCircle, ArrowRight, ShieldAlert, MapPin, Loader2, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, ArrowRight, ShieldAlert, MapPin, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
-import { sendMobileOTP, sendEmailOTP, verifyOTP } from '../../services/otpService';
+import { sendMobileOTP, verifyOTP } from '../../services/otpService';
 
 export function SignupPage() {
   const { role } = useParams(); // waste-giver | collector | buyer | ngo | admin
@@ -27,37 +27,41 @@ export function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Phone SMS OTP state and resend cooldown timer
   const [phoneOtp, setPhoneOtp] = useState({ sent: false, verified: false, loading: false, value: '', msg: '' });
-  const [emailOtp, setEmailOtp] = useState({ sent: false, verified: false, loading: false, value: '', msg: '' });
+  const [phoneResendTimer, setPhoneResendTimer] = useState(0);
+
+  // Countdown timer for Phone OTP resend
+  useEffect(() => {
+    let interval = null;
+    if (phoneResendTimer > 0) {
+      interval = setInterval(() => {
+        setPhoneResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [phoneResendTimer]);
 
   const handleSendPhoneOTP = async () => {
-    if (!formData.phone) return;
+    if (!formData.phone || formData.phone.trim().length < 6) return;
     setPhoneOtp(p => ({ ...p, loading: true, msg: '' }));
     const res = await sendMobileOTP(formData.phone);
-    setPhoneOtp(p => ({ ...p, sent: true, loading: false, msg: res.message }));
+    if (res.success) {
+      setPhoneResendTimer(60); // 60 seconds cooldown for resend
+      setPhoneOtp(p => ({ ...p, sent: true, loading: false, msg: res.message || 'SMS verification code sent!' }));
+    } else {
+      setPhoneOtp(p => ({ ...p, loading: false, msg: res.message || 'Failed to send SMS.' }));
+    }
   };
 
   const handleVerifyPhoneOTP = async () => {
     if (!phoneOtp.value) return;
     setPhoneOtp(p => ({ ...p, loading: true }));
-    const res = await verifyOTP(phoneOtp.value);
+    const res = await verifyOTP(phoneOtp.value, formData.phone);
     if (res.success) setPhoneOtp(p => ({ ...p, verified: true, loading: false, msg: 'Phone verified successfully!' }));
     else setPhoneOtp(p => ({ ...p, loading: false, msg: res.message }));
-  };
-
-  const handleSendEmailOTP = async () => {
-    if (!formData.email) return;
-    setEmailOtp(p => ({ ...p, loading: true, msg: '' }));
-    const res = await sendEmailOTP(formData.email);
-    setEmailOtp(p => ({ ...p, sent: true, loading: false, msg: res.message }));
-  };
-
-  const handleVerifyEmailOTP = async () => {
-    if (!emailOtp.value) return;
-    setEmailOtp(p => ({ ...p, loading: true }));
-    const res = await verifyOTP(emailOtp.value);
-    if (res.success) setEmailOtp(p => ({ ...p, verified: true, loading: false, msg: 'Email verified successfully!' }));
-    else setEmailOtp(p => ({ ...p, loading: false, msg: res.message }));
   };
 
   if (targetRole === 'admin') {
@@ -134,68 +138,28 @@ export function SignupPage() {
 
         <div>
           <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
-          <div className="flex gap-2">
-            <input
-              type="email"
-              required
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={emailOtp.verified || emailOtp.sent}
-              placeholder="user@domain.com"
-              className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
-            />
-            {!emailOtp.verified && !emailOtp.sent && (
-              <button
-                type="button"
-                onClick={handleSendEmailOTP}
-                disabled={!formData.email || emailOtp.loading}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
-              >
-                {emailOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Send OTP'}
-              </button>
-            )}
-            {emailOtp.verified && (
-              <span className="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 text-xs font-bold">
-                <CheckCircle2 className="w-4 h-4" /> Verified
-              </span>
-            )}
-          </div>
-          {emailOtp.sent && !emailOtp.verified && (
-            <div className="mt-2 flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter 6-digit OTP"
-                value={emailOtp.value}
-                onChange={(e) => setEmailOtp(p => ({ ...p, value: e.target.value }))}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500"
-              />
-              <button
-                type="button"
-                onClick={handleVerifyEmailOTP}
-                disabled={emailOtp.loading || !emailOtp.value}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
-              >
-                {emailOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Verify'}
-              </button>
-            </div>
-          )}
-          {emailOtp.msg && (
-            <p className={`mt-1 text-[10px] ${emailOtp.verified ? 'text-emerald-400' : 'text-slate-400'}`}>{emailOtp.msg}</p>
-          )}
+          <input
+            type="email"
+            required
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="user@domain.com"
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Mobile Phone Number</label>
             <div className="flex gap-2">
               <input
-                type="text"
+                type="tel"
                 required
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                disabled={phoneOtp.verified || phoneOtp.sent}
+                disabled={phoneOtp.verified}
                 placeholder="+91 98765 43210"
                 className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
               />
@@ -204,7 +168,7 @@ export function SignupPage() {
                   type="button"
                   onClick={handleSendPhoneOTP}
                   disabled={!formData.phone || phoneOtp.loading}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {phoneOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Send OTP'}
                 </button>
@@ -215,23 +179,42 @@ export function SignupPage() {
                 </span>
               )}
             </div>
+
+            {/* OTP Verification & Working Resend OTP Option */}
             {phoneOtp.sent && !phoneOtp.verified && (
-              <div className="mt-2 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit OTP"
-                  value={phoneOtp.value}
-                  onChange={(e) => setPhoneOtp(p => ({ ...p, value: e.target.value }))}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500"
-                />
-                <button
-                  type="button"
-                  onClick={handleVerifyPhoneOTP}
-                  disabled={phoneOtp.loading || !phoneOtp.value}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
-                >
-                  {phoneOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Verify'}
-                </button>
+              <div className="mt-2 space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP"
+                    value={phoneOtp.value}
+                    onChange={(e) => setPhoneOtp(p => ({ ...p, value: e.target.value.replace(/[^\d]/g, '') }))}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-emerald-500 text-xs text-center tracking-widest text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyPhoneOTP}
+                    disabled={phoneOtp.loading || phoneOtp.value.length !== 6}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {phoneOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Verify'}
+                  </button>
+                </div>
+
+                {/* Working Resend OTP button with live countdown */}
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[11px] text-slate-400">Didn't get the SMS?</span>
+                  <button
+                    type="button"
+                    onClick={handleSendPhoneOTP}
+                    disabled={phoneResendTimer > 0 || phoneOtp.loading}
+                    className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 disabled:text-slate-500 disabled:cursor-not-allowed flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className={`w-3 h-3 ${phoneOtp.loading ? 'animate-spin' : ''}`} />
+                    {phoneResendTimer > 0 ? `Resend OTP (${phoneResendTimer}s)` : 'Resend OTP'}
+                  </button>
+                </div>
               </div>
             )}
             {phoneOtp.msg && (
@@ -335,7 +318,7 @@ export function SignupPage() {
 
         <button
           type="submit"
-          disabled={loading || !emailOtp.verified || !phoneOtp.verified}
+          disabled={loading || !phoneOtp.verified}
           className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -345,7 +328,7 @@ export function SignupPage() {
             </span>
           ) : (
             <>
-              {!emailOtp.verified || !phoneOtp.verified ? 'Verify Email & Phone to Continue' : 'Complete Registration'}
+              {!phoneOtp.verified ? 'Verify Mobile Number to Continue' : 'Complete Registration'}
               <ArrowRight className="w-4 h-4" />
             </>
           )}

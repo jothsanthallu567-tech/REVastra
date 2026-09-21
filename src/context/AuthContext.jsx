@@ -356,6 +356,45 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const loginWithPhone = async (phoneNumber, expectedRole = 'waste-giver') => {
+    const state = getStoredState();
+    const cleanDigits = (phoneNumber || '').replace(/[^\d]/g, '');
+
+    // Lookup existing user by phone number and role
+    let foundUser = (state.users || []).find(
+      u => u.role === expectedRole && u.phone && u.phone.replace(/[^\d]/g, '').endsWith(cleanDigits.slice(-10))
+    );
+
+    // If not found, provision user profile with this phone number
+    if (!foundUser) {
+      const newId = `usr-${expectedRole}-${Date.now().toString().slice(-4)}`;
+      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91 ${phoneNumber}`;
+      foundUser = {
+        id: newId,
+        name: `User ${cleanDigits.slice(-4) || 'REV'}`,
+        email: `phone.${cleanDigits.slice(-4) || 'user'}@revastra.org`,
+        role: expectedRole,
+        phone: formattedPhone,
+        address: 'Verified Mobile Station',
+        sourceType: expectedRole === 'waste-giver' ? 'Household' : '',
+        qrCode: expectedRole === 'waste-giver' ? generateSourceQR({ id: newId }) : null,
+        greenCoinsBalance: expectedRole === 'waste-giver' ? 100 : 0,
+        baseCoinsToday: 0,
+        streakDays: 1,
+        assignedZone: expectedRole === 'collector' ? 'East Zone Corridor 4' : '',
+        vehicleNo: expectedRole === 'collector' ? 'KA-01-EV-4092' : '',
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanDigits}`
+      };
+      const updatedUsers = [...(state.users || []), foundUser];
+      saveState({ ...state, users: updatedUsers });
+      syncDocToFirestore('users', foundUser.id, foundUser).catch(() => {});
+    }
+
+    setCurrentUser(foundUser);
+    localStorage.setItem('revastra_session_user', JSON.stringify(foundUser));
+    return { success: true, user: foundUser };
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -366,6 +405,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!currentUser,
         loading,
         login,
+        loginWithPhone,
         loginWithGoogle,
         signup,
         logout,
