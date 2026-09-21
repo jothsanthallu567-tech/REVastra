@@ -161,20 +161,20 @@ export function SignupPage() {
                 onChange={handleChange}
                 disabled={phoneOtp.verified}
                 placeholder="+91 98765 43210"
-                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
+                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
               />
               {!phoneOtp.verified && !phoneOtp.sent && (
                 <button
                   type="button"
                   onClick={handleSendPhoneOTP}
                   disabled={!formData.phone || phoneOtp.loading}
-                  className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="shrink-0 whitespace-nowrap px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {phoneOtp.loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Send OTP'}
                 </button>
               )}
               {phoneOtp.verified && (
-                <span className="px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 text-xs font-bold">
+                <span className="shrink-0 whitespace-nowrap px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 text-xs font-bold">
                   <CheckCircle2 className="w-4 h-4" /> Verified
                 </span>
               )}

@@ -6,8 +6,8 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-// Backend API URL (defaults to Render backend or VITE_API_URL)
-const API_BASE = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.origin.includes('localhost') ? '' : 'https://revastra.onrender.com');
+// Backend API URL (defaults to relative /api or VITE_API_URL)
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 // In-memory state for tracking last phone and email OTP session
 let lastPhoneRequested = '';
@@ -53,7 +53,7 @@ export async function sendMobileOTP(phoneNumber) {
     // Graceful fallback if backend is momentarily unreachable
     return {
       success: false,
-      message: 'Unable to reach backend OTP server at https://revastra.onrender.com.'
+      message: 'Unable to reach backend OTP server. If running on Render free tier, please wait a few seconds for the server to wake up and try again.'
     };
   }
 }

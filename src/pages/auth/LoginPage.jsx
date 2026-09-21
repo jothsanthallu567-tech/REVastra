@@ -75,8 +75,8 @@ export function LoginPage() {
     return clean;
   };
 
-  // Backend API URL (defaults to Render backend or VITE_API_URL)
-  const API_BASE = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.origin.includes('localhost') ? '' : 'https://revastra.onrender.com');
+  // Backend API URL (defaults to relative /api or VITE_API_URL)
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   // 1. Send SMS OTP using fetch() to the Node.js Express backend
   const handleSendOTP = async (e) => {
@@ -120,7 +120,7 @@ export function LoginPage() {
     } catch (err) {
       setOtpLoading(false);
       console.error('Fetch send-otp error:', err);
-      setError('Unable to connect to backend server. Make sure the backend server is running at https://revastra.onrender.com.');
+      setError('Unable to connect to backend server. Render instance may be spinning up from sleep mode—please wait 15 seconds and click Send OTP again.');
     }
   };
 
