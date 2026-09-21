@@ -49,6 +49,12 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Pre-wake backend server (wakes up Render free instance on page load)
+  useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_URL || '';
+    fetch(`${API_BASE}/api/health`).catch(() => {});
+  }, []);
+
   // Countdown timer for OTP resend
   useEffect(() => {
     let interval = null;
@@ -78,7 +84,7 @@ export function LoginPage() {
   // Backend API URL (defaults to relative /api or VITE_API_URL)
   const API_BASE = import.meta.env.VITE_API_URL || '';
 
-  // 1. Send SMS OTP using fetch() to the Node.js Express backend
+  // 1. Send SMS OTP using fetch() to the Node.js Express backend with auto-retry for Render cold starts
   const handleSendOTP = async (e) => {
     if (e) e.preventDefault();
     setError('');
@@ -93,34 +99,49 @@ export function LoginPage() {
     const formattedPhone = getFormattedPhone();
     setOtpLoading(true);
 
-    try {
-      const response = await fetch(`${API_BASE}/api/send-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ phone: formattedPhone })
-      });
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 1) {
+          setInfoMessage(`Waking up Render backend server (Attempt ${attempt}/${maxRetries})... Please wait.`);
+        }
 
-      const data = await response.json();
-      setOtpLoading(false);
+        const response = await fetch(`${API_BASE}/api/send-otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ phone: formattedPhone })
+        });
 
-      if (response.ok && data.success) {
-        setOtpSent(true);
-        setResendTimer(60); // 60 seconds cooldown for resend
-        setInfoMessage(data.message || `Verification code sent to ${formattedPhone}. Valid for 5 minutes.`);
-        
-        // Auto-focus OTP input box
-        setTimeout(() => {
-          if (otpInputRef.current) otpInputRef.current.focus();
-        }, 150);
-      } else {
-        setError(data.message || 'Failed to send SMS OTP. Please try again.');
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setOtpLoading(false);
+          setOtpSent(true);
+          setResendTimer(60); // 60 seconds cooldown for resend
+          setInfoMessage(data.message || `Verification code sent to ${formattedPhone}. Valid for 5 minutes.`);
+          
+          // Auto-focus OTP input box
+          setTimeout(() => {
+            if (otpInputRef.current) otpInputRef.current.focus();
+          }, 150);
+          return;
+        } else {
+          setOtpLoading(false);
+          setError(data.message || 'Failed to send SMS OTP. Please try again.');
+          return;
+        }
+      } catch (err) {
+        console.error(`Fetch send-otp error (Attempt ${attempt}):`, err);
+        if (attempt < maxRetries) {
+          // Wait 3 seconds before next retry while Render spins up
+          await new Promise(res => setTimeout(res, 3000));
+        } else {
+          setOtpLoading(false);
+          setError('Unable to reach backend OTP server. If running on Render free tier, please visit https://revastra.onrender.com/api/health in a tab to wake it up, then try again.');
+        }
       }
-    } catch (err) {
-      setOtpLoading(false);
-      console.error('Fetch send-otp error:', err);
-      setError('Unable to connect to backend server. Render instance may be spinning up from sleep mode—please wait 15 seconds and click Send OTP again.');
     }
   };
 
