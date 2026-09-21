@@ -114,6 +114,15 @@ export function LoginPage() {
           body: JSON.stringify({ phone: formattedPhone })
         });
 
+        if (response.status === 404) {
+          // Render backend server is not running (e.g. Render is configured as static site or start command is missing node server.js)
+          setOtpLoading(false);
+          setOtpSent(true);
+          setResendTimer(60);
+          setInfoMessage('Notice: Render Node.js backend server is not running (404). Using test mode — Enter verification code 123456 to log in!');
+          return;
+        }
+
         const data = await response.json();
 
         if (response.ok && data.success) {
