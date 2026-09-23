@@ -336,6 +336,66 @@ export function LandingPage() {
       </section>
 
       {/* ========================================================
+          CIVICWATCH SPOTLIGHT: "See Waste Dumped on the Road?"
+          ======================================================== */}
+      <section className="py-8 px-4 sm:px-6 max-w-7xl mx-auto">
+        <div className="glass-panel p-6 sm:p-10 rounded-3xl border border-teal-500/40 bg-gradient-to-r from-slate-900 via-teal-950/40 to-slate-900 shadow-2xl relative overflow-hidden">
+          <div className="hero-glow top-0 right-0 opacity-20"></div>
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
+            <div className="space-y-3 max-w-2xl text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/20 border border-teal-500/40 text-teal-300 text-xs font-bold">
+                <Building2 className="w-4 h-4" />
+                <span>ReVastra CivicWatch • Public Citizen Portal (No Login Required)</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-black text-white font-heading">
+                See Waste Dumped on the Road?
+              </h2>
+
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium">
+                Report it with a photo and location. ReVastra connects the report with the concerned municipality for cleanup.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-slate-400">
+                <div className="flex items-center gap-1.5 text-teal-300 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                  <span>Mandatory GPS accuracy</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-teal-300 font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                  <span>Direct Municipal dispatch</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-purple-300 font-semibold">
+                  <Repeat className="w-4 h-4 text-purple-400" />
+                  <span>Connected to RRC Recovery</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full lg:w-auto shrink-0">
+              <NavLink
+                to="/civicwatch/report"
+                id="btn-report-dumping-home"
+                className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-400 hover:from-teal-400 hover:to-emerald-300 text-white text-base font-black tracking-wide shadow-xl shadow-teal-500/30 transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <Camera className="w-5 h-5 animate-pulse" />
+                <span>Report Roadside Dumping</span>
+                <ArrowRight className="w-4 h-4" />
+              </NavLink>
+
+              <NavLink
+                to="/civicwatch"
+                className="w-full sm:w-auto px-5 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white text-xs font-bold text-center transition-colors"
+              >
+                Open CivicWatch Portal
+              </NavLink>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
           2. THE PROBLEM WE SOLVE
           ======================================================== */}
       <section className="py-16 px-4 sm:px-6 max-w-7xl mx-auto border-t border-slate-800/80">

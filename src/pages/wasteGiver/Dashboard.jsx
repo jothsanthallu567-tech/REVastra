@@ -5,6 +5,7 @@ import { useData } from '../../context/DataContext';
 import { StatCard } from '../../components/common/StatCard';
 import { StatusBadge } from '../../components/common/Badge';
 import { QRViewerModal } from '../../components/qr/QRViewerModal';
+import { WasteGiverLocationTracker } from '../../components/map/WasteGiverLocationTracker';
 import {
   Coins,
   Truck,
@@ -112,6 +113,9 @@ export function WasteGiverDashboard() {
           color="purple"
         />
       </div>
+
+      {/* Live Doorstep Location Radar Section */}
+      <WasteGiverLocationTracker height="340px" />
 
       {/* Main Grid: Recent Collections & Grocery Rewards Teaser */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

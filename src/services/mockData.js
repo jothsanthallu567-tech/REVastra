@@ -140,6 +140,18 @@ export const INITIAL_USERS = [
     department: 'Platform Directorate & Operations',
     phone: '+91 98765 00000',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'
+  },
+  // Municipality / Urban Local Body (ULB)
+  {
+    id: 'usr-municipality-1',
+    name: 'BBMP Urban Local Body (East Zone)',
+    contactPerson: 'K. S. Narayanan (Chief Sanitation Officer)',
+    email: 'municipality@bbmp.gov.in',
+    role: 'municipality',
+    department: 'Solid Waste Management & Sanitation Directorate',
+    jurisdiction: 'Bruhat Bengaluru Mahanagara Palike - East Zone (Wards 110-120)',
+    phone: '+91 80 2266 0000',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
   }
 ];
 
@@ -715,13 +727,141 @@ export const INITIAL_ROUTES = [
     id: 'route-ez-04',
     collectorId: 'usr-collector-1',
     name: 'East Zone Corridor 4 (Indiranagar - MG Road)',
-    date: '2026-09-07',
+    zone: 'East Zone Corridor 4',
+    date: '2026-09-21',
     totalDistanceKm: 14.2,
-    estimatedDurationMinutes: 110,
+    estimatedDurationMinutes: 45,
     stops: [
-      { stopOrder: 1, name: 'Ananya Household', address: 'Green Meadows Sec 14', status: 'Completed', qrCode: 'QR-WG-1001' },
-      { stopOrder: 2, name: 'Royal Spice Kitchen', address: '128 Commercial St', status: 'Completed', qrCode: 'QR-WG-1002' },
-      { stopOrder: 3, name: 'Nexus Tech Park', address: 'Outer Ring Road', status: 'Pending', qrCode: 'QR-WG-1003' }
+      {
+        stopOrder: 1,
+        id: 'stop-1',
+        name: 'Ananya Sharma (Waste Giver Doorstep)',
+        address: 'Green Meadows Sec 14, Indiranagar',
+        status: 'Pending',
+        qrCode: 'QR-WG-1001',
+        material: 'PET Plastic & Paper',
+        estimatedQty: 15,
+        lat: 12.9716,
+        lng: 77.5946
+      },
+      {
+        stopOrder: 2,
+        id: 'stop-2',
+        name: 'Royal Spice Kitchen',
+        address: '128 Commercial St, Shivajinagar',
+        status: 'Pending',
+        qrCode: 'QR-WG-1002',
+        material: 'Organic Kitchen Segregated',
+        estimatedQty: 42,
+        lat: 12.9815,
+        lng: 77.6080
+      },
+      {
+        stopOrder: 3,
+        id: 'stop-3',
+        name: 'Nexus Tech Park Block B',
+        address: 'Outer Ring Road, Indiranagar Ext',
+        status: 'Pending',
+        qrCode: 'QR-WG-1003',
+        material: 'E-Waste & Cardboard',
+        estimatedQty: 30,
+        lat: 12.9620,
+        lng: 77.6380
+      },
+      {
+        stopOrder: 4,
+        id: 'stop-4',
+        name: 'Green Leaf Co-Op Society',
+        address: '14th Cross, Indiranagar Stage 2',
+        status: 'Completed',
+        qrCode: 'QR-WG-1004',
+        material: 'Dry Mixed Recyclables',
+        estimatedQty: 25,
+        lat: 12.9785,
+        lng: 77.6410
+      }
+    ]
+  },
+  {
+    id: 'route-sz-07',
+    collectorId: 'usr-collector-1',
+    name: 'South Tech Corridor 7 (Koramangala - HSR)',
+    zone: 'South Industrial Area',
+    date: '2026-09-21',
+    totalDistanceKm: 18.6,
+    estimatedDurationMinutes: 60,
+    stops: [
+      {
+        stopOrder: 1,
+        id: 'stop-s1',
+        name: 'Suresh Menon Household',
+        address: '80ft Road, 4th Block Koramangala',
+        status: 'Pending',
+        qrCode: 'QR-WG-1005',
+        material: 'Aluminium Cans & Glass',
+        estimatedQty: 18,
+        lat: 12.9340,
+        lng: 77.6250
+      },
+      {
+        stopOrder: 2,
+        id: 'stop-s2',
+        name: 'Daily Fresh Bakery & Cafe',
+        address: '27th Main, Sector 1 HSR Layout',
+        status: 'Pending',
+        qrCode: 'QR-WG-1006',
+        material: 'Cardboard & Paper Packaging',
+        estimatedQty: 55,
+        lat: 12.9120,
+        lng: 77.6440
+      },
+      {
+        stopOrder: 3,
+        id: 'stop-s3',
+        name: 'Innovate Campus Recycling Bay',
+        address: 'Outer Ring Road, Bellandur',
+        status: 'Pending',
+        qrCode: 'QR-WG-1007',
+        material: 'High-Density Polyethylene (HDPE)',
+        estimatedQty: 40,
+        lat: 12.9260,
+        lng: 77.6760
+      }
+    ]
+  },
+  {
+    id: 'route-nz-02',
+    collectorId: 'usr-collector-1',
+    name: 'North Tech Corridor 2 (Hebbal - Manyata)',
+    zone: 'North Tech Corridor',
+    date: '2026-09-21',
+    totalDistanceKm: 22.4,
+    estimatedDurationMinutes: 75,
+    stops: [
+      {
+        stopOrder: 1,
+        id: 'stop-n1',
+        name: 'Manyata Residency Block C',
+        address: 'Nagavara Main Road',
+        status: 'Pending',
+        qrCode: 'QR-WG-1008',
+        material: 'PET Bottles & Shrink Wrap',
+        estimatedQty: 35,
+        lat: 13.0450,
+        lng: 77.6200
+      },
+      {
+        stopOrder: 2,
+        id: 'stop-n2',
+        name: 'Hebbal Bio-Waste Point',
+        address: 'Bellary Road, Ganganagar',
+        status: 'Pending',
+        qrCode: 'QR-WG-1009',
+        material: 'Organic Compostables',
+        estimatedQty: 60,
+        lat: 13.0280,
+        lng: 77.5890
+      }
     ]
   }
 ];
@@ -737,3 +877,143 @@ export const INITIAL_IMPACT_METRICS = {
   activeBuyers: 48,
   totalMarketplaceRevenueRupees: 894200
 };
+
+// ReVastra CivicWatch Seed Reports (Round 3 Feature)
+export const INITIAL_CIVIC_REPORTS = [
+  {
+    reportId: 'RV-CW-0001',
+    photoUrl: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&q=80&w=600',
+    latitude: 12.9784,
+    longitude: 77.6408,
+    address: '100 Feet Road, Near HAL 2nd Stage Signal, Indiranagar',
+    area: 'Indiranagar',
+    ward: 'Ward 112 - Domlur / Indiranagar',
+    wasteType: 'Plastic',
+    description: 'Huge pile of discarded single-use plastic cups, packaging boxes and PET bottles dumped along the footpath sidewalk.',
+    landmark: 'Opposite Corner Cafe, next to electrical transformer',
+    reportedAt: '2026-09-22 08:45',
+    concernedMunicipality: 'BBMP Urban Local Body (East Zone)',
+    status: 'Cleanup in Progress',
+    assignedTeam: {
+      teamId: 'TEAM-03',
+      teamName: 'Municipal Quick Response Team 03 - East Sanitation',
+      assignedAt: '2026-09-22 10:30',
+      notes: 'Dispatched with 1 Mini-Tipper and 3 sanitation marshals.'
+    },
+    verifiedAt: '2026-09-22 09:15',
+    cleanupStartedAt: '2026-09-22 11:00',
+    cleanedAt: null,
+    closedAt: null,
+    resolutionPhotoUrl: null,
+    recoveryPotential: 'Recoverable',
+    forwardedToRRC: false,
+    rrcCollectionId: null
+  },
+  {
+    reportId: 'RV-CW-0002',
+    photoUrl: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&q=80&w=600',
+    latitude: 12.9352,
+    longitude: 77.6245,
+    address: '5th Block Main Road, Near Jyoti Nivas College Junction, Koramangala',
+    area: 'Koramangala',
+    ward: 'Ward 151 - Koramangala',
+    wasteType: 'Mixed Waste',
+    description: 'Illegal roadside dump with cardboard cartons, food containers, and packaging material overflowing onto the road.',
+    landmark: 'Behind bus stop shelter',
+    reportedAt: '2026-09-21 14:20',
+    concernedMunicipality: 'BBMP Urban Local Body (South Zone)',
+    status: 'Cleaned',
+    assignedTeam: {
+      teamId: 'TEAM-07',
+      teamName: 'South Zone Rapid Sweepers Unit 07',
+      assignedAt: '2026-09-21 15:00',
+      notes: 'Collected 85kg mixed dry recyclables.'
+    },
+    verifiedAt: '2026-09-21 14:40',
+    cleanupStartedAt: '2026-09-21 15:30',
+    cleanedAt: '2026-09-21 17:15',
+    closedAt: null,
+    resolutionPhotoUrl: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=600',
+    recoveryPotential: 'Recoverable',
+    forwardedToRRC: true,
+    rrcCollectionId: 'COL-2026-8905'
+  },
+  {
+    reportId: 'RV-CW-0003',
+    photoUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=600',
+    latitude: 12.9716,
+    longitude: 77.5946,
+    address: 'Residency Road Cross, Near Shanthala Silk House, Central Ward',
+    area: 'Shanthala Nagar',
+    ward: 'Ward 111 - Shantala Nagar',
+    wasteType: 'Paper/Cardboard',
+    description: 'Commercial shop packaging waste dumped along storm water drain edge.',
+    landmark: 'Behind Metro Pillar 142',
+    reportedAt: '2026-09-23 09:10',
+    concernedMunicipality: 'BBMP Urban Local Body (East Zone)',
+    status: 'Reported',
+    assignedTeam: null,
+    verifiedAt: null,
+    cleanupStartedAt: null,
+    cleanedAt: null,
+    closedAt: null,
+    resolutionPhotoUrl: null,
+    recoveryPotential: 'Pending Assessment',
+    forwardedToRRC: false,
+    rrcCollectionId: null
+  },
+  {
+    reportId: 'RV-CW-0004',
+    photoUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=600',
+    latitude: 12.9141,
+    longitude: 77.6509,
+    address: '27th Main Road, Sector 1, HSR Layout',
+    area: 'HSR Layout',
+    ward: 'Ward 174 - HSR Layout',
+    wasteType: 'Construction Waste',
+    description: 'Debris, broken tiles, and cement bags dumped near vacant plot corner.',
+    landmark: 'Next to BBMP Park gate #3',
+    reportedAt: '2026-09-20 11:30',
+    concernedMunicipality: 'BBMP Urban Local Body (South Zone)',
+    status: 'Closed',
+    assignedTeam: {
+      teamId: 'TEAM-12',
+      teamName: 'Heavy Debris Clearing Squad 12',
+      assignedAt: '2026-09-20 13:00',
+      notes: 'Cleared via hydraulic loader truck.'
+    },
+    verifiedAt: '2026-09-20 12:15',
+    cleanupStartedAt: '2026-09-20 14:00',
+    cleanedAt: '2026-09-20 16:45',
+    closedAt: '2026-09-20 18:00',
+    resolutionPhotoUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600',
+    recoveryPotential: 'Non-Recoverable',
+    forwardedToRRC: false,
+    rrcCollectionId: null
+  },
+  {
+    reportId: 'RV-CW-0005',
+    photoUrl: 'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?auto=format&fit=crop&q=80&w=600',
+    latitude: 12.9856,
+    longitude: 77.7289,
+    address: 'ITPL Main Road, Near Hoodi Circle, Whitefield',
+    area: 'Whitefield',
+    ward: 'Ward 84 - Hagadur / Whitefield',
+    wasteType: 'E-Waste',
+    description: 'Broken computer chassis, tangled cables, and discarded monitor casings dumped by the roadside.',
+    landmark: 'Beside Tech Park flyover pillar',
+    reportedAt: '2026-09-23 07:50',
+    concernedMunicipality: 'BBMP Urban Local Body (East Zone)',
+    status: 'Verified',
+    assignedTeam: null,
+    verifiedAt: '2026-09-23 08:30',
+    cleanupStartedAt: null,
+    cleanedAt: null,
+    closedAt: null,
+    resolutionPhotoUrl: null,
+    recoveryPotential: 'Recoverable',
+    forwardedToRRC: false,
+    rrcCollectionId: null
+  }
+];
+

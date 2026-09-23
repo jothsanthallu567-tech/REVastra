@@ -17,11 +17,24 @@ import {
   INITIAL_MATERIALS,
   INITIAL_PROHIBITED_WASTE,
   INITIAL_GRADE_A_BONUS_PERCENT,
-  INITIAL_COIN_TRANSACTIONS
+  INITIAL_COIN_TRANSACTIONS,
+  INITIAL_CIVIC_REPORTS
 } from './mockData';
 import { DEFAULT_MATERIAL_RATES } from './greenCoinService';
 
-const STORAGE_KEY = 'revastra_sih2026_state_v3';
+export const STORAGE_KEY = 'revastra_app_state_v2';
+
+export const INITIAL_LIVE_GIVER_LOCATION = {
+  giverId: 'usr-giver-1',
+  giverName: 'Ananya Sharma',
+  lat: 12.9716,
+  lng: 77.5946,
+  accuracy: 12,
+  address: 'Indiranagar 100ft Road, Bengaluru, Karnataka',
+  isLive: true,
+  isManual: false,
+  updatedAt: new Date().toISOString()
+};
 
 export function getStoredState() {
   try {
@@ -45,11 +58,14 @@ export function getStoredState() {
         prohibitedWaste: INITIAL_PROHIBITED_WASTE,
         coinRatesConfig: DEFAULT_MATERIAL_RATES,
         gradeABonusPercent: INITIAL_GRADE_A_BONUS_PERCENT,
-        coinTransactions: INITIAL_COIN_TRANSACTIONS
+        coinTransactions: INITIAL_COIN_TRANSACTIONS,
+        liveGiverLocation: INITIAL_LIVE_GIVER_LOCATION,
+        civicReports: INITIAL_CIVIC_REPORTS
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState));
       return defaultState;
     }
+
     const parsed = JSON.parse(raw);
     
     // Ensure all standard initial role accounts exist
@@ -66,6 +82,15 @@ export function getStoredState() {
     }
     if (!parsed.coinTransactions) {
       parsed.coinTransactions = INITIAL_COIN_TRANSACTIONS;
+    }
+    if (!parsed.liveGiverLocation) {
+      parsed.liveGiverLocation = INITIAL_LIVE_GIVER_LOCATION;
+    }
+    if (!parsed.routes || parsed.routes.length < 2 || !parsed.routes[0].stops?.[0]?.lat) {
+      parsed.routes = INITIAL_ROUTES;
+    }
+    if (!parsed.civicReports || parsed.civicReports.length === 0) {
+      parsed.civicReports = INITIAL_CIVIC_REPORTS;
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
     return parsed;
@@ -89,7 +114,9 @@ export function getStoredState() {
       prohibitedWaste: INITIAL_PROHIBITED_WASTE,
       coinRatesConfig: DEFAULT_MATERIAL_RATES,
       gradeABonusPercent: INITIAL_GRADE_A_BONUS_PERCENT,
-      coinTransactions: INITIAL_COIN_TRANSACTIONS
+      coinTransactions: INITIAL_COIN_TRANSACTIONS,
+      liveGiverLocation: INITIAL_LIVE_GIVER_LOCATION,
+      civicReports: INITIAL_CIVIC_REPORTS
     };
   }
 }
@@ -124,7 +151,9 @@ export function resetStateToDefaults() {
     prohibitedWaste: INITIAL_PROHIBITED_WASTE,
     coinRatesConfig: DEFAULT_MATERIAL_RATES,
     gradeABonusPercent: INITIAL_GRADE_A_BONUS_PERCENT,
-    coinTransactions: INITIAL_COIN_TRANSACTIONS
+    coinTransactions: INITIAL_COIN_TRANSACTIONS,
+    liveGiverLocation: INITIAL_LIVE_GIVER_LOCATION,
+    civicReports: INITIAL_CIVIC_REPORTS
   };
   saveState(defaultState);
   return defaultState;

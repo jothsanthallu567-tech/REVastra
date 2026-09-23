@@ -294,6 +294,39 @@ async function handleVerifyOtp(req, res) {
   }
 }
 
+// In-memory live location store for Waste Giver and Collector tracking
+let liveGiverLocation = {
+  giverId: 'usr-giver-1',
+  giverName: 'Ananya Sharma',
+  lat: 12.9716,
+  lng: 77.5946,
+  accuracy: 12,
+  address: 'Indiranagar 100ft Road, Bengaluru, Karnataka',
+  isLive: true,
+  isManual: false,
+  updatedAt: new Date().toISOString()
+};
+
+app.post('/api/location/giver', (req, res) => {
+  const { giverId, giverName, lat, lng, accuracy, address, isLive, isManual } = req.body;
+  liveGiverLocation = {
+    giverId: giverId || liveGiverLocation.giverId,
+    giverName: giverName || liveGiverLocation.giverName,
+    lat: typeof lat === 'number' ? lat : (lat ? Number(lat) : liveGiverLocation.lat),
+    lng: typeof lng === 'number' ? lng : (lng ? Number(lng) : liveGiverLocation.lng),
+    accuracy: accuracy !== undefined ? accuracy : liveGiverLocation.accuracy,
+    address: address || liveGiverLocation.address,
+    isLive: isLive !== undefined ? Boolean(isLive) : liveGiverLocation.isLive,
+    isManual: isManual !== undefined ? Boolean(isManual) : liveGiverLocation.isManual,
+    updatedAt: new Date().toISOString()
+  };
+  return res.json({ success: true, location: liveGiverLocation });
+});
+
+app.get('/api/location/giver', (req, res) => {
+  return res.json({ success: true, location: liveGiverLocation });
+});
+
 // Bind primary endpoints
 app.post('/api/send-otp', handleSendOtp);
 app.post('/api/verify-otp', handleVerifyOtp);

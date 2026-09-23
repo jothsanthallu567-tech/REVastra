@@ -26,7 +26,8 @@ export function LoginPage() {
     'collector': 'Collector',
     'buyer': 'B2B Buyer',
     'ngo': 'NGO',
-    'admin': 'Admin'
+    'admin': 'Admin',
+    'municipality': 'Municipality / ULB'
   };
 
   // Mode: 'phone' or 'email'

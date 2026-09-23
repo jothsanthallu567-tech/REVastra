@@ -118,7 +118,7 @@ export function DataProvider({ children }) {
   };
 
   // 1. Waste Giver: Manually Submit Collection Request (Auto-syncs into Collector "Pending Waste" portal)
-  const requestCollection = ({ giverId, giverName, sourceType, qrCode, materialId, materialName, estimatedQty, unit = 'kg', requestedDate, notes }) => {
+  const requestCollection = ({ giverId, giverName, sourceType, qrCode, materialId, materialName, estimatedQty, unit = 'kg', requestedDate, address, notes, location, isLiveLocation }) => {
     const newCollection = {
       id: `COL-2026-${Math.floor(8900 + Math.random() * 1000)}`,
       giverId,
@@ -139,6 +139,9 @@ export function DataProvider({ children }) {
       batchId: null,
       segregated: false,
       coinsEarned: 0,
+      address: address || 'Flat 402, Green Meadows, Sector 14, Bengaluru',
+      location: location || null,
+      isLiveLocation: Boolean(isLiveLocation),
       notes: notes || 'Manual Waste Submission'
     };
 
@@ -163,6 +166,42 @@ export function DataProvider({ children }) {
     syncDocToFirestore('wasteCollections', newCollection.id, newCollection).catch(() => {});
 
     return newCollection;
+  };
+
+  // Live Location Synchronization for Waste Giver
+  const updateWasteGiverLiveLocation = (locUpdate) => {
+    const updated = {
+      giverId: locUpdate.giverId || 'usr-giver-1',
+      giverName: locUpdate.giverName || 'Ananya Sharma',
+      lat: typeof locUpdate.lat === 'number' ? locUpdate.lat : Number(locUpdate.lat),
+      lng: typeof locUpdate.lng === 'number' ? locUpdate.lng : Number(locUpdate.lng),
+      accuracy: locUpdate.accuracy || null,
+      address: locUpdate.address || '',
+      isLive: locUpdate.isLive !== undefined ? Boolean(locUpdate.isLive) : true,
+      isManual: Boolean(locUpdate.isManual),
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      localStorage.setItem('revastra_live_giver_location', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('revastra_location_updated', { detail: updated }));
+    } catch (e) {
+      console.warn('Failed to save location to localStorage:', e);
+    }
+
+    updateStore((prev) => ({
+      ...prev,
+      liveGiverLocation: updated
+    }));
+
+    // Async sync with backend server
+    fetch('/api/location/giver', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    }).catch(() => {});
+
+    return updated;
   };
 
   // 2. Collector: Accept & Record Pickup
@@ -1061,6 +1100,254 @@ export function DataProvider({ children }) {
     syncDocToFirestore('prohibitedWaste', itemWithId.id, itemWithId).catch(() => {});
   };
 
+  // ==========================================
+  // CIVICWATCH: CITIZEN REPORTING & MUNICIPAL RESPONSE (ROUND 3)
+  // ==========================================
+
+  const createCivicReport = ({ photoUrl, latitude, longitude, address, area, ward, wasteType, description, landmark, concernedMunicipality }) => {
+    const existingReports = data.civicReports || [];
+    const nextNum = existingReports.length + 1;
+    const reportId = `RV-CW-${String(nextNum).padStart(4, '0')}`;
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+    // Automatic municipality determination if not explicitly passed
+    let determinedMunicipality = concernedMunicipality;
+    if (!determinedMunicipality) {
+      if (area?.toLowerCase().includes('koramangala') || area?.toLowerCase().includes('hsr') || (latitude && latitude < 12.95)) {
+        determinedMunicipality = 'BBMP Urban Local Body (South Zone)';
+      } else {
+        determinedMunicipality = 'BBMP Urban Local Body (East Zone)';
+      }
+    }
+
+    const newReport = {
+      reportId,
+      photoUrl: photoUrl || 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&q=80&w=600',
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      address: address || 'Detected Roadside Location',
+      area: area || 'Urban Ward Area',
+      ward: ward || 'Ward 112 - Domlur / Indiranagar',
+      wasteType: wasteType || 'Mixed Waste',
+      description: description || 'Roadside illegal waste dump reported by citizen.',
+      landmark: landmark || '',
+      reportedAt: nowStr,
+      concernedMunicipality: determinedMunicipality,
+      status: 'Reported', // Reported -> Verified -> Assigned -> Cleanup in Progress -> Cleaned -> Closed
+      assignedTeam: null,
+      verifiedAt: null,
+      cleanupStartedAt: null,
+      cleanedAt: null,
+      closedAt: null,
+      resolutionPhotoUrl: null,
+      recoveryPotential: 'Pending Assessment',
+      forwardedToRRC: false,
+      rrcCollectionId: null
+    };
+
+    updateStore((prev) => {
+      const updatedReports = [newReport, ...(prev.civicReports || [])];
+      const newNotifs = [
+        {
+          id: `notif-cw-${Date.now()}`,
+          userId: 'usr-municipality-1',
+          title: `New CivicWatch Dumping Report: ${reportId}`,
+          message: `A new roadside dumping incident (${wasteType}) was reported at ${newReport.address}. Pending verification.`,
+          timestamp: nowStr,
+          read: false,
+          type: 'civic_report'
+        },
+        ...(prev.notifications || [])
+      ];
+
+      return {
+        ...prev,
+        civicReports: updatedReports,
+        notifications: newNotifs
+      };
+    });
+
+    syncDocToFirestore('civicReports', newReport.reportId, newReport).catch(() => {});
+    return newReport;
+  };
+
+  const verifyCivicReport = (reportId, notes = '') => {
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    updateStore((prev) => ({
+      ...prev,
+      civicReports: (prev.civicReports || []).map((r) => {
+        if (r.reportId === reportId) {
+          const updated = {
+            ...r,
+            status: 'Verified',
+            verifiedAt: nowStr,
+            notes: notes || r.notes
+          };
+          syncDocToFirestore('civicReports', r.reportId, updated).catch(() => {});
+          return updated;
+        }
+        return r;
+      })
+    }));
+  };
+
+  const assignCivicReportTeam = (reportId, { teamId, teamName, notes = '' }) => {
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    updateStore((prev) => ({
+      ...prev,
+      civicReports: (prev.civicReports || []).map((r) => {
+        if (r.reportId === reportId) {
+          const updated = {
+            ...r,
+            status: 'Assigned',
+            assignedTeam: {
+              teamId: teamId || 'TEAM-03',
+              teamName: teamName || 'Municipal Quick Response Team 03',
+              assignedAt: nowStr,
+              notes: notes || 'Assigned for prompt clearing.'
+            }
+          };
+          syncDocToFirestore('civicReports', r.reportId, updated).catch(() => {});
+          return updated;
+        }
+        return r;
+      })
+    }));
+  };
+
+  const startCivicReportCleanup = (reportId) => {
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    updateStore((prev) => ({
+      ...prev,
+      civicReports: (prev.civicReports || []).map((r) => {
+        if (r.reportId === reportId) {
+          const updated = {
+            ...r,
+            status: 'Cleanup in Progress',
+            cleanupStartedAt: nowStr
+          };
+          syncDocToFirestore('civicReports', r.reportId, updated).catch(() => {});
+          return updated;
+        }
+        return r;
+      })
+    }));
+  };
+
+  const completeCivicReportCleanup = (reportId, { resolutionPhotoUrl, recoveryPotential = 'Recoverable' }) => {
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    updateStore((prev) => ({
+      ...prev,
+      civicReports: (prev.civicReports || []).map((r) => {
+        if (r.reportId === reportId) {
+          const updated = {
+            ...r,
+            status: 'Cleaned',
+            cleanedAt: nowStr,
+            resolutionPhotoUrl: resolutionPhotoUrl || 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=600',
+            recoveryPotential: recoveryPotential || 'Recoverable'
+          };
+          syncDocToFirestore('civicReports', r.reportId, updated).catch(() => {});
+          return updated;
+        }
+        return r;
+      })
+    }));
+  };
+
+  const closeCivicReport = (reportId) => {
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    updateStore((prev) => ({
+      ...prev,
+      civicReports: (prev.civicReports || []).map((r) => {
+        if (r.reportId === reportId) {
+          const updated = {
+            ...r,
+            status: 'Closed',
+            closedAt: nowStr
+          };
+          syncDocToFirestore('civicReports', r.reportId, updated).catch(() => {});
+          return updated;
+        }
+        return r;
+      })
+    }));
+  };
+
+  const forwardCivicReportToRRC = (reportId, { estimatedQty = 35, materialCategory = 'mat-plastic', recoveryCentreId = 'rc-alpha-01' } = {}) => {
+    const targetReport = (data.civicReports || []).find((r) => r.reportId === reportId);
+    if (!targetReport) return null;
+
+    const colId = `COL-2026-CIVIC-${targetReport.reportId.replace('RV-CW-', '')}`;
+    const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+    const newCollection = {
+      id: colId,
+      giverId: 'civic-public',
+      giverName: `CivicWatch: ${targetReport.area || 'Roadside Site'} (${targetReport.reportId})`,
+      sourceType: 'CivicWatch Roadside Clearing',
+      qrCode: `QR-CIVIC-${targetReport.reportId}`,
+      collectorId: 'usr-collector-1',
+      collectorName: targetReport.assignedTeam?.teamName || 'Municipal Sanitation Team',
+      materialId: materialCategory || 'mat-plastic',
+      materialName: targetReport.wasteType || 'Plastic',
+      estimatedQty: Number(estimatedQty) || 35,
+      actualQty: Number(estimatedQty) || 35,
+      unit: 'kg',
+      requestedDate: targetReport.reportedAt,
+      collectedDate: nowStr,
+      status: 'Sent to Recovery Centre', // Sent to Recovery Centre makes it immediately ready in Segregation & Weighing dock
+      recoveryCentreId: recoveryCentreId || 'rc-alpha-01',
+      batchId: null,
+      segregated: false,
+      coinsEarned: 0,
+      address: targetReport.address,
+      location: { lat: targetReport.latitude, lng: targetReport.longitude },
+      isLiveLocation: true,
+      notes: `Forwarded from CivicWatch dumping report ${targetReport.reportId}. Recovery Potential: ${targetReport.recoveryPotential}`
+    };
+
+    updateStore((prev) => {
+      const updatedReports = (prev.civicReports || []).map((r) => {
+        if (r.reportId === reportId) {
+          const upd = {
+            ...r,
+            forwardedToRRC: true,
+            rrcCollectionId: colId
+          };
+          syncDocToFirestore('civicReports', r.reportId, upd).catch(() => {});
+          return upd;
+        }
+        return r;
+      });
+
+      const updatedCols = [newCollection, ...(prev.collections || [])];
+      syncDocToFirestore('wasteCollections', colId, newCollection).catch(() => {});
+
+      const newNotifs = [
+        {
+          id: `notif-rrc-${Date.now()}`,
+          userId: 'usr-admin-1',
+          title: `CivicWatch Waste Forwarded to RRC Dock`,
+          message: `${targetReport.wasteType} (${estimatedQty} kg) from cleaned dumping site ${targetReport.reportId} received at RRC Dock #2 for secondary segregation.`,
+          timestamp: nowStr,
+          read: false,
+          type: 'rrc_arrival'
+        },
+        ...(prev.notifications || [])
+      ];
+
+      return {
+        ...prev,
+        civicReports: updatedReports,
+        collections: updatedCols,
+        notifications: newNotifs
+      };
+    });
+
+    return newCollection;
+  };
+
   const resetDemoData = () => {
     const fresh = resetStateToDefaults();
     setData(fresh);
@@ -1070,6 +1357,14 @@ export function DataProvider({ children }) {
     <DataContext.Provider
       value={{
         data,
+        civicReports: data.civicReports || [],
+        createCivicReport,
+        verifyCivicReport,
+        assignCivicReportTeam,
+        startCivicReportCleanup,
+        completeCivicReportCleanup,
+        closeCivicReport,
+        forwardCivicReportToRRC,
         requestCollection,
         acceptCollectionRequest,
         recordPickup,
@@ -1089,7 +1384,9 @@ export function DataProvider({ children }) {
         addProhibitedItem,
         resetDemoData,
         refreshData,
-        registerUser
+        registerUser,
+        updateWasteGiverLiveLocation,
+        liveGiverLocation: data.liveGiverLocation
       }}
     >
       {children}

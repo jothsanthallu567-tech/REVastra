@@ -68,6 +68,17 @@ import { BatchTraceabilityPage } from './pages/admin/BatchTraceabilityPage';
 import { AISuitePage } from './pages/admin/AISuitePage';
 import { AdminSystemSettings } from './pages/admin/SystemSettings';
 
+// CivicWatch Public Pages (Zero Citizen Login)
+import { CivicWatchLanding } from './pages/civicWatch/CivicWatchLanding';
+import { CivicWatchReport } from './pages/civicWatch/CivicWatchReport';
+import { CivicWatchTrack } from './pages/civicWatch/CivicWatchTrack';
+import { CivicWatchSuccess } from './pages/civicWatch/CivicWatchSuccess';
+
+// Municipality / ULB Pages
+import { MunicipalityDashboard } from './pages/municipality/MunicipalityDashboard';
+import { MunicipalityReportDetail } from './pages/municipality/MunicipalityReportDetail';
+import { MunicipalityProfile } from './pages/municipality/MunicipalityProfile';
+
 import { NotFoundPage } from './pages/common/NotFoundPage';
 
 export default function App() {
@@ -87,6 +98,13 @@ export default function App() {
                 {/* Full Platform Story Landing Page */}
                 <Route path="/home" element={<LandingPage />} />
                 <Route path="/about" element={<LandingPage />} />
+
+                {/* ReVastra CivicWatch Public Portal (Completely Separate & Zero-Login) */}
+                <Route path="/civicwatch" element={<CivicWatchLanding />} />
+                <Route path="/civicwatch/report" element={<CivicWatchReport />} />
+                <Route path="/civicwatch/track" element={<CivicWatchTrack />} />
+                <Route path="/civicwatch/track/:reportId" element={<CivicWatchTrack />} />
+                <Route path="/civicwatch/success" element={<CivicWatchSuccess />} />
 
                 {/* Real-Time QR Verification & Doorstep Pickup Route (Public & Mobile Accessible) */}
                 <Route path="/verify-source" element={<VerifySourcePage />} />
@@ -119,6 +137,12 @@ export default function App() {
                   <Route path="/collector/my-collections" element={<MyCollections />} />
                   <Route path="/collector/routes" element={<CollectorRoutes />} />
                   <Route path="/collector/profile" element={<CollectorProfile />} />
+
+                  {/* Municipality / Urban Local Body (ULB) Module */}
+                  <Route path="/municipality/dashboard" element={<MunicipalityDashboard />} />
+                  <Route path="/municipality/reports" element={<MunicipalityDashboard />} />
+                  <Route path="/municipality/report/:id" element={<MunicipalityReportDetail />} />
+                  <Route path="/municipality/profile" element={<MunicipalityProfile />} />
 
                   {/* Recovery Centre Direct Shortcuts */}
                   <Route path="/recovery-centre/dashboard" element={<AdminRecoveryCentres />} />

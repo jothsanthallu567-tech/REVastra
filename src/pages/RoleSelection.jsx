@@ -76,7 +76,7 @@ export function RoleSelection() {
     {
       roleKey: 'admin',
       title: '5. System Admin',
-      badge: 'Municipal Directorate & Operations',
+      badge: 'Platform Directorate & Operations',
       description: 'Complete 360° ecosystem oversight: manage recovery centres, digital inventory publishing, coin issuance rates & immutable batch audits.',
       icon: ShieldCheck,
       color: 'rose',
@@ -84,6 +84,18 @@ export function RoleSelection() {
       signupUrl: null,
       dashboardUrl: '/admin/dashboard',
       features: ['RRC Dock Operations', 'Monetization & Revenue', 'End-to-End Traceability']
+    },
+    {
+      roleKey: 'municipality',
+      title: '6. Municipality / ULB',
+      badge: 'Urban Local Bodies & Sanitation Wings',
+      description: 'Review incoming citizen roadside dumping reports, verify incidents, dispatch cleanup teams, upload resolution proof & forward to recovery centres.',
+      icon: Building2,
+      color: 'teal',
+      loginUrl: '/login/municipality',
+      signupUrl: '/signup/municipality',
+      dashboardUrl: '/municipality/dashboard',
+      features: ['Civic Dumping Triage', 'Rapid Team Dispatch', 'Before/After Evidence', 'RRC Waste Forwarding']
     }
   ];
 
@@ -95,7 +107,7 @@ export function RoleSelection() {
       <div className="max-w-6xl mx-auto w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
               <Leaf className="w-4 h-4" />
               <span>Smart Waste-to-Value Ecosystem</span>
@@ -107,6 +119,14 @@ export function RoleSelection() {
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>About Platform</span>
+            </NavLink>
+
+            <NavLink
+              to="/civicwatch"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/40 text-teal-300 hover:text-white text-xs font-bold transition-all shadow-sm"
+            >
+              <Building2 className="w-3.5 h-3.5 text-teal-400" />
+              <span>Public CivicWatch Portal (No Login)</span>
             </NavLink>
           </div>
 

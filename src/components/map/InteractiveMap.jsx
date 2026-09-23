@@ -40,10 +40,16 @@ export function InteractiveMap({ height = '300px', markers = [] }) {
 
   return (
     <div style={{ height }} className="w-full rounded-2xl overflow-hidden border border-slate-800 shadow-inner z-0 relative">
-      <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
+      <MapContainer
+        center={center}
+        zoom={13}
+        minZoom={3}
+        worldCopyJump={true}
+        style={{ height: '100%', width: '100%' }}
+      >
         <TileLayer
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {markers.map((marker, idx) => (
           <Marker key={idx} position={[marker.lat, marker.lng]}>

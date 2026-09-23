@@ -93,6 +93,14 @@ export function Sidebar({ isOpen, setIsOpen }) {
           { to: '/admin/settings', label: t('nav_settings'), icon: Settings }
         ];
 
+      case 'municipality':
+        return [
+          { to: '/municipality/dashboard', label: 'Civic Triage & Reports', icon: LayoutDashboard },
+          { to: '/recovery-centre/segregation', label: 'RRC Recovery Dock', icon: Building2 },
+          { to: '/admin/inventory', label: 'Recovered Inventory', icon: Boxes },
+          { to: '/municipality/profile', label: t('nav_profile'), icon: User }
+        ];
+
       default:
         return [
           { to: '/role-selection', label: 'Role Selection', icon: LayoutDashboard }
@@ -108,7 +116,8 @@ export function Sidebar({ isOpen, setIsOpen }) {
       'collector': { text: 'Collector', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
       'buyer': { text: 'B2B Buyer', bg: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
       'ngo': { text: 'NGO / Food Rescue', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-      'admin': { text: 'System Admin', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' }
+      'admin': { text: 'System Admin', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
+      'municipality': { text: 'Municipality / ULB', bg: 'bg-teal-500/10 text-teal-400 border-teal-500/30' }
     };
     return rolesMap[currentRole] || { text: 'Guest', bg: 'bg-slate-700 text-slate-300' };
   };
@@ -186,10 +195,26 @@ export function Sidebar({ isOpen, setIsOpen }) {
           </nav>
         </div>
 
-        {/* Footer info */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-950/40 text-center">
-          <p className="text-[11px] text-slate-400">REVastra v2.5</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">{t('tagline')}</p>
+        {/* CivicWatch Fast Access & Footer info */}
+        <div className="p-3 border-t border-slate-800/80 bg-slate-950/40 space-y-2">
+          <NavLink
+            to="/civicwatch"
+            onClick={() => setIsOpen(false)}
+            className="w-full py-2 px-3 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-300 flex items-center justify-between text-xs font-bold transition-all group"
+          >
+            <div className="flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5 text-teal-400 group-hover:scale-110 transition-transform" />
+              <span>CivicWatch Portal</span>
+            </div>
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-200 uppercase font-extrabold">
+              Public
+            </span>
+          </NavLink>
+
+          <div className="text-center pt-1">
+            <p className="text-[11px] text-slate-400 font-medium">REVastra CleanTech v3.0</p>
+            <p className="text-[10px] text-slate-400">{t('tagline')}</p>
+          </div>
         </div>
       </aside>
     </>

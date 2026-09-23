@@ -85,6 +85,18 @@ export function AuthProvider({ children }) {
           phone: '+91 98765 00000',
           avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'
         };
+      } else if (expectedRole === 'municipality' && (cleanInput.includes('bbmp') || cleanInput.includes('municipality') || cleanInput.includes('officer') || cleanInput === '')) {
+        foundUser = (state.users || []).find(u => u.role === 'municipality') || {
+          id: 'usr-municipality-1',
+          name: 'BBMP Urban Local Body (East Zone)',
+          contactPerson: 'K. S. Narayanan (Chief Sanitation Officer)',
+          email: 'municipality@bbmp.gov.in',
+          role: 'municipality',
+          department: 'Solid Waste Management & Sanitation Directorate',
+          jurisdiction: 'Bruhat Bengaluru Mahanagara Palike - East Zone (Wards 110-120)',
+          phone: '+91 80 2266 0000',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+        };
       } else if (expectedRole === 'collector' && (cleanInput.includes('ramesh') || cleanInput.includes('collector') || cleanInput === '')) {
         foundUser = (state.users || []).find(u => u.id === 'usr-collector-1' || u.role === 'collector') || {
           id: 'usr-collector-1',
@@ -148,7 +160,8 @@ export function AuthProvider({ children }) {
         'collector': (state.users || []).find(u => u.role === 'collector') || state.users[1],
         'buyer': (state.users || []).find(u => u.role === 'buyer') || state.users[2],
         'ngo': (state.users || []).find(u => u.role === 'ngo') || state.users[3],
-        'admin': (state.users || []).find(u => u.role === 'admin') || state.users[4]
+        'admin': (state.users || []).find(u => u.role === 'admin') || state.users[4],
+        'municipality': (state.users || []).find(u => u.role === 'municipality') || state.users.find(u => u.id === 'usr-municipality-1')
       };
       foundUser = roleDefaults[expectedRole] || state.users[0];
     }

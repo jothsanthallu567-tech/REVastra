@@ -4,8 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { AIClassifierModal } from '../../components/ai/AIClassifierModal';
-import { Truck, Sparkles, AlertCircle, ArrowRight, Leaf, ShieldAlert, ChevronDown, ChevronUp, AlertTriangle, MapPin, Loader2 } from 'lucide-react';
+import { Truck, Sparkles, AlertCircle, ArrowRight, Leaf, ShieldAlert, ChevronDown, ChevronUp, AlertTriangle, MapPin, Loader2, Compass } from 'lucide-react';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
+import { WasteGiverLocationTracker } from '../../components/map/WasteGiverLocationTracker';
 
 export function RequestCollection() {
   const { currentUser } = useAuth();
@@ -20,6 +21,8 @@ export function RequestCollection() {
   );
   const [address, setAddress] = useState(currentUser?.address || '');
   const [notes, setNotes] = useState('Clean & segregated for recovery dock verification.');
+  const [showMapPicker, setShowMapPicker] = useState(false);
+  const [pinnedLocation, setPinnedLocation] = useState(null);
 
   const { getLocation, loading: locationLoading } = useLiveLocation();
 
@@ -44,7 +47,9 @@ export function RequestCollection() {
       unit: 'kg',
       requestedDate,
       address,
-      notes
+      notes,
+      location: pinnedLocation,
+      isLiveLocation: pinnedLocation?.isLive ?? false
     });
 
     setSubmittedMessage(`Collection request ${col.id} created! Sent to Collector queue.`);
@@ -164,18 +169,28 @@ export function RequestCollection() {
               <MapPin className="w-3.5 h-3.5 text-emerald-400" />
               Pickup Address *
             </label>
-            <button
-              type="button"
-              onClick={async () => {
-                const loc = await getLocation();
-                if (loc?.address) setAddress(loc.address);
-              }}
-              disabled={locationLoading}
-              className="text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
-            >
-              {locationLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
-              {locationLoading ? 'Locating...' : 'Use Current Location'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowMapPicker(!showMapPicker)}
+                className="text-[10px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30"
+              >
+                <Compass className="w-3 h-3" />
+                {showMapPicker ? 'Hide Map Radar' : 'Live GPS & Map Pin'}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const loc = await getLocation();
+                  if (loc?.address) setAddress(loc.address);
+                }}
+                disabled={locationLoading}
+                className="text-[10px] text-slate-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
+              >
+                {locationLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
+                {locationLoading ? 'Locating...' : 'Quick GPS'}
+              </button>
+            </div>
           </div>
           <input
             type="text"
@@ -185,6 +200,19 @@ export function RequestCollection() {
             placeholder="Complete address, Sector, City"
             className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-emerald-500"
           />
+
+          {showMapPicker && (
+            <div className="mt-3">
+              <WasteGiverLocationTracker
+                height="280px"
+                onLocationChange={(loc) => {
+                  if (loc?.address) setAddress(loc.address);
+                  setPinnedLocation(loc);
+                }}
+                compact={true}
+              />
+            </div>
+          )}
         </div>
 
         {/* Quantity & Date Row */}
