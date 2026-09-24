@@ -78,6 +78,7 @@ export function Sidebar({ isOpen, setIsOpen }) {
       case 'admin':
         return [
           { to: '/admin/dashboard', label: t('nav_dashboard'), icon: LayoutDashboard },
+          { to: '/admin/civic-reports', label: 'Civic Watch Grievances', icon: AlertTriangle },
           { to: '/admin/users', label: t('nav_users'), icon: Users },
           { to: '/admin/collectors', label: t('nav_collector_history'), icon: ClipboardList },
           { to: '/admin/collections', label: t('nav_my_collections'), icon: Truck },
@@ -91,14 +92,6 @@ export function Sidebar({ isOpen, setIsOpen }) {
           { to: '/admin/traceability', label: t('nav_traceability'), icon: FileCheck2 },
           { to: '/admin/ai-suite', label: t('nav_ai_suite'), icon: Cpu },
           { to: '/admin/settings', label: t('nav_settings'), icon: Settings }
-        ];
-
-      case 'municipality':
-        return [
-          { to: '/municipality/dashboard', label: 'Civic Triage & Reports', icon: LayoutDashboard },
-          { to: '/recovery-centre/segregation', label: 'RRC Recovery Dock', icon: Building2 },
-          { to: '/admin/inventory', label: 'Recovered Inventory', icon: Boxes },
-          { to: '/municipality/profile', label: t('nav_profile'), icon: User }
         ];
 
       default:
@@ -116,8 +109,7 @@ export function Sidebar({ isOpen, setIsOpen }) {
       'collector': { text: 'Collector', bg: 'bg-blue-500/10 text-blue-400 border-blue-500/30' },
       'buyer': { text: 'B2B Buyer', bg: 'bg-purple-500/10 text-purple-400 border-purple-500/30' },
       'ngo': { text: 'NGO / Food Rescue', bg: 'bg-amber-500/10 text-amber-400 border-amber-500/30' },
-      'admin': { text: 'System Admin', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' },
-      'municipality': { text: 'Municipality / ULB', bg: 'bg-teal-500/10 text-teal-400 border-teal-500/30' }
+      'admin': { text: 'System Admin', bg: 'bg-rose-500/10 text-rose-400 border-rose-500/30' }
     };
     return rolesMap[currentRole] || { text: 'Guest', bg: 'bg-slate-700 text-slate-300' };
   };

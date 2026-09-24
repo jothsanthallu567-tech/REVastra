@@ -1104,7 +1104,7 @@ export function DataProvider({ children }) {
   // CIVICWATCH: CITIZEN REPORTING & MUNICIPAL RESPONSE (ROUND 3)
   // ==========================================
 
-  const createCivicReport = ({ photoUrl, latitude, longitude, address, area, ward, wasteType, description, landmark, concernedMunicipality }) => {
+  const createCivicReport = ({ photoUrl, latitude, longitude, address, area, ward, wasteType, urgency, description, landmark, reporterPhone, concernedMunicipality }) => {
     const existingReports = data.civicReports || [];
     const nextNum = existingReports.length + 1;
     const reportId = `RV-CW-${String(nextNum).padStart(4, '0')}`;
@@ -1114,23 +1114,25 @@ export function DataProvider({ children }) {
     let determinedMunicipality = concernedMunicipality;
     if (!determinedMunicipality) {
       if (area?.toLowerCase().includes('koramangala') || area?.toLowerCase().includes('hsr') || (latitude && latitude < 12.95)) {
-        determinedMunicipality = 'BBMP Urban Local Body (South Zone)';
+        determinedMunicipality = 'South Zone Sanitation Wing';
       } else {
-        determinedMunicipality = 'BBMP Urban Local Body (East Zone)';
+        determinedMunicipality = 'East Zone Sanitation Wing';
       }
     }
 
     const newReport = {
       reportId,
       photoUrl: photoUrl || 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&q=80&w=600',
-      latitude: Number(latitude),
-      longitude: Number(longitude),
+      latitude: Number(latitude) || 12.9784,
+      longitude: Number(longitude) || 77.6408,
       address: address || 'Detected Roadside Location',
       area: area || 'Urban Ward Area',
       ward: ward || 'Ward 112 - Domlur / Indiranagar',
       wasteType: wasteType || 'Mixed Waste',
+      urgency: urgency || 'Standard',
       description: description || 'Roadside illegal waste dump reported by citizen.',
       landmark: landmark || '',
+      reporterPhone: reporterPhone || 'Anonymous Citizen',
       reportedAt: nowStr,
       concernedMunicipality: determinedMunicipality,
       status: 'Reported', // Reported -> Verified -> Assigned -> Cleanup in Progress -> Cleaned -> Closed
@@ -1149,10 +1151,10 @@ export function DataProvider({ children }) {
       const updatedReports = [newReport, ...(prev.civicReports || [])];
       const newNotifs = [
         {
-          id: `notif-cw-${Date.now()}`,
-          userId: 'usr-municipality-1',
-          title: `New CivicWatch Dumping Report: ${reportId}`,
-          message: `A new roadside dumping incident (${wasteType}) was reported at ${newReport.address}. Pending verification.`,
+          id: `notif-cw-admin-${Date.now()}`,
+          userId: 'usr-admin-1',
+          title: `New CivicWatch Incident: ${reportId}`,
+          message: `Citizen reported roadside dumping (${wasteType}) at ${newReport.address}. Review photo in Civic Grievances.`,
           timestamp: nowStr,
           read: false,
           type: 'civic_report'

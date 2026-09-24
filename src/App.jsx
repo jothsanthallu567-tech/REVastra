@@ -54,6 +54,8 @@ import { NGOProfile } from './pages/ngo/ProfilePage';
 
 // Admin Pages
 import { AdminOverview } from './pages/admin/Overview';
+import { AdminCivicReports } from './pages/admin/CivicReports';
+import { CivicReportDetail } from './pages/admin/CivicReportDetail';
 import { AdminUserManagement } from './pages/admin/UserManagement';
 import { AdminCollectorHistory } from './pages/admin/CollectorHistory';
 import { AdminRecoveryCentres } from './pages/admin/RecoveryCentres';
@@ -73,11 +75,6 @@ import { CivicWatchLanding } from './pages/civicWatch/CivicWatchLanding';
 import { CivicWatchReport } from './pages/civicWatch/CivicWatchReport';
 import { CivicWatchTrack } from './pages/civicWatch/CivicWatchTrack';
 import { CivicWatchSuccess } from './pages/civicWatch/CivicWatchSuccess';
-
-// Municipality / ULB Pages
-import { MunicipalityDashboard } from './pages/municipality/MunicipalityDashboard';
-import { MunicipalityReportDetail } from './pages/municipality/MunicipalityReportDetail';
-import { MunicipalityProfile } from './pages/municipality/MunicipalityProfile';
 
 import { NotFoundPage } from './pages/common/NotFoundPage';
 
@@ -138,11 +135,11 @@ export default function App() {
                   <Route path="/collector/routes" element={<CollectorRoutes />} />
                   <Route path="/collector/profile" element={<CollectorProfile />} />
 
-                  {/* Municipality / Urban Local Body (ULB) Module */}
-                  <Route path="/municipality/dashboard" element={<MunicipalityDashboard />} />
-                  <Route path="/municipality/reports" element={<MunicipalityDashboard />} />
-                  <Route path="/municipality/report/:id" element={<MunicipalityReportDetail />} />
-                  <Route path="/municipality/profile" element={<MunicipalityProfile />} />
+                  {/* Municipality Redirects to Admin Civic Reports */}
+                  <Route path="/municipality/dashboard" element={<Navigate to="/admin/civic-reports" replace />} />
+                  <Route path="/municipality/reports" element={<Navigate to="/admin/civic-reports" replace />} />
+                  <Route path="/municipality/report/:id" element={<Navigate to="/admin/civic-reports" replace />} />
+                  <Route path="/municipality/profile" element={<Navigate to="/admin/dashboard" replace />} />
 
                   {/* Recovery Centre Direct Shortcuts */}
                   <Route path="/recovery-centre/dashboard" element={<AdminRecoveryCentres />} />
@@ -166,6 +163,8 @@ export default function App() {
 
                   {/* System Admin Module */}
                   <Route path="/admin/dashboard" element={<AdminOverview />} />
+                  <Route path="/admin/civic-reports" element={<AdminCivicReports />} />
+                  <Route path="/admin/civic-reports/:id" element={<CivicReportDetail />} />
                   <Route path="/admin/users" element={<AdminUserManagement />} />
                   <Route path="/admin/collectors" element={<AdminCollectorHistory />} />
                   <Route path="/admin/collections" element={<MyCollections />} />

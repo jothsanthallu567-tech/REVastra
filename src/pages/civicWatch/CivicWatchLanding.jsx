@@ -4,7 +4,6 @@ import { useData } from '../../context/DataContext';
 import {
   Camera,
   MapPin,
-  Building2,
   ShieldCheck,
   ArrowRight,
   Search,
@@ -20,7 +19,10 @@ import {
   ExternalLink,
   ChevronRight,
   TrendingUp,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Building2,
+  Eye,
+  X
 } from 'lucide-react';
 
 export function CivicWatchLanding() {
@@ -28,6 +30,7 @@ export function CivicWatchLanding() {
   const navigate = useNavigate();
   const [trackIdInput, setTrackIdInput] = useState('');
   const [trackError, setTrackError] = useState('');
+  const [selectedImageModal, setSelectedImageModal] = useState(null);
 
   const reports = civicReports || [];
   const totalReports = reports.length;
@@ -55,18 +58,18 @@ export function CivicWatchLanding() {
     },
     {
       num: '02',
-      title: 'Mandatory GPS Pin',
+      title: 'Automatic GPS Pin',
       subtitle: 'Precise Geolocation',
-      desc: 'Device coordinates pinpoint the exact street, ward boundary, and identify the concerned Urban Local Body (ULB).',
+      desc: 'Device coordinates pinpoint the exact street, ward boundary, and identify the concerned sanitation sector.',
       icon: MapPin,
       color: 'teal'
     },
     {
       num: '03',
-      title: 'Municipal Response',
-      subtitle: 'Sanitation Dispatch',
-      desc: 'Concerned municipal officers verify the report, assign rapid sanitation teams, and track cleanup in real time.',
-      icon: Building2,
+      title: 'Rapid Cleanup Action',
+      subtitle: 'Team Dispatch & Triage',
+      desc: 'Sanitation response squads are dispatched with specialized collection equipment to clean the site.',
+      icon: Truck,
       color: 'blue'
     },
     {
@@ -86,9 +89,7 @@ export function CivicWatchLanding() {
       <div className="hero-glow top-[900px] left-1/4 opacity-15"></div>
       <div className="hero-glow top-[2000px] right-1/4 opacity-15"></div>
 
-      {/* ========================================================
-          TOP NAVIGATION HEADER (PUBLIC ZERO-LOGIN)
-          ======================================================== */}
+      {/* TOP NAVIGATION HEADER (PUBLIC ZERO-LOGIN) */}
       <header className="sticky top-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-teal-500/20 h-20">
         <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <NavLink to="/" className="flex items-center gap-3">
@@ -105,7 +106,7 @@ export function CivicWatchLanding() {
                 </span>
               </div>
               <span className="block text-[10px] text-slate-400 font-medium tracking-wide">
-                Roadside Dumping Reporting & Municipal Response
+                Roadside Dumping Reporting & Rapid Remediation
               </span>
             </div>
           </NavLink>
@@ -120,11 +121,10 @@ export function CivicWatchLanding() {
             </NavLink>
 
             <NavLink
-              to="/login/municipality"
+              to="/role-selection"
               className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-teal-500/40 text-slate-300 hover:text-white text-xs font-bold transition-all"
             >
-              <Building2 className="w-3.5 h-3.5 text-teal-400" />
-              <span>Municipality Portal</span>
+              <span>Platform Roles</span>
             </NavLink>
 
             <NavLink
@@ -138,14 +138,12 @@ export function CivicWatchLanding() {
         </div>
       </header>
 
-      {/* ========================================================
-          HERO SECTION
-          ======================================================== */}
+      {/* HERO SECTION */}
       <section className="relative pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center space-y-6 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-bold shadow-inner animate-pulse">
-            <Building2 className="w-4 h-4" />
-            <span>Direct Citizen-to-Municipality Cleantech Action • No Account Required</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-bold shadow-inner">
+            <Sparkles className="w-4 h-4 text-teal-400" />
+            <span>Public Citizen Grievance Portal • Zero Sign-In or Login Required</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white font-heading tracking-tight leading-tight">
@@ -154,7 +152,7 @@ export function CivicWatchLanding() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed">
-            ReVastra CivicWatch lets any citizen instantly report roadside dumping or illegal waste directly to the concerned Urban Local Body (ULB) with mandatory GPS pinpointing & photo proof.
+            ReVastra CivicWatch lets any citizen instantly report roadside dumping, overflowing bins, or illegal garbage with mandatory GPS coordinates & live photo proof. No account needed.
           </p>
 
           {/* Core Call to Actions */}
@@ -202,7 +200,7 @@ export function CivicWatchLanding() {
             {trackError && <p className="text-rose-400 text-xs mt-2">{trackError}</p>}
           </div>
 
-          {/* Key Trust Badges */}
+          {/* Key Impact Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-8 max-w-4xl mx-auto text-left">
             <div className="glass-panel p-4 rounded-2xl border border-slate-800/80 bg-slate-900/50">
               <div className="text-2xl font-black text-teal-400 font-mono">{totalReports}</div>
@@ -224,17 +222,15 @@ export function CivicWatchLanding() {
         </div>
       </section>
 
-      {/* ========================================================
-          HOW CIVICWATCH WORKS
-          ======================================================== */}
+      {/* HOW CIVICWATCH WORKS */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-800/60">
         <div className="text-center space-y-3 mb-12">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-teal-400">Streamlined Civic Response</span>
+          <span className="text-xs font-extrabold uppercase tracking-widest text-teal-400">Streamlined Civic Action</span>
           <h2 className="text-3xl sm:text-4xl font-black text-white font-heading">
             How ReVastra CivicWatch Works
           </h2>
           <p className="text-sm text-slate-400 max-w-2xl mx-auto">
-            From citizen photo capture to municipal dispatch and circular secondary recovery in 4 straightforward steps.
+            From citizen photo capture to automated GPS routing, team dispatch, and secondary circular recovery.
           </p>
         </div>
 
@@ -268,9 +264,7 @@ export function CivicWatchLanding() {
         </div>
       </section>
 
-      {/* ========================================================
-          MANDATORY LOCATION REQUIREMENT EXPLANATION
-          ======================================================== */}
+      {/* MANDATORY LOCATION REQUIREMENT */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-teal-500/30 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 shadow-2xl relative overflow-hidden">
           <div className="hero-glow top-0 right-0 opacity-20"></div>
@@ -289,13 +283,13 @@ export function CivicWatchLanding() {
                 Why Location Tracking is Mandatory
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Roadside dumping reports cannot be routed without valid GPS coordinates. When you submit a report, CivicWatch automatically captures your device coordinates to identify the <strong>exact Municipal Ward, Sanitation Zone, and Urban Local Body (ULB)</strong> in charge of that sector.
+                Roadside dumping reports cannot be resolved without exact coordinates. When you submit a report, CivicWatch automatically captures your device coordinates to identify the <strong>exact Municipal Ward, Sanitation Zone, and Sector Team</strong> in charge of that area.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                 <div className="flex items-center gap-2 text-xs text-slate-300">
                   <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-                  <span>Prevents duplicate/fake reports</span>
+                  <span>Prevents duplicate reports</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-300">
                   <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
@@ -303,7 +297,7 @@ export function CivicWatchLanding() {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-300">
                   <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-                  <span>Direct GPS navigation for sweepers</span>
+                  <span>GPS navigation for cleanups</span>
                 </div>
               </div>
             </div>
@@ -311,18 +305,16 @@ export function CivicWatchLanding() {
         </div>
       </section>
 
-      {/* ========================================================
-          RECENT RESOLVED SITES (BEFORE & AFTER SHOWCASE)
-          ======================================================== */}
+      {/* RECENT RESOLVED SITES (BEFORE & AFTER) */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-teal-400">Verified Evidence</span>
+            <span className="text-xs font-extrabold uppercase tracking-widest text-teal-400">Verified Proof</span>
             <h2 className="text-3xl font-black text-white font-heading">
               Recent Resolved Dumping Sites
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Transparent municipal resolution with verified Before & After evidence photos.
+              Transparent community resolution with verified Before & After evidence photos.
             </p>
           </div>
 
@@ -364,7 +356,8 @@ export function CivicWatchLanding() {
                     <img
                       src={report.photoUrl}
                       alt="Reported dumping"
-                      className="w-full h-28 object-cover rounded-xl border border-slate-800 group-hover:border-slate-700"
+                      className="w-full h-28 object-cover rounded-xl border border-slate-800 group-hover:border-slate-700 cursor-pointer"
+                      onClick={() => setSelectedImageModal(report.photoUrl)}
                     />
                   </div>
                   <div className="space-y-1">
@@ -375,7 +368,8 @@ export function CivicWatchLanding() {
                       <img
                         src={report.resolutionPhotoUrl}
                         alt="Cleaned dumping site"
-                        className="w-full h-28 object-cover rounded-xl border border-emerald-500/40"
+                        className="w-full h-28 object-cover rounded-xl border border-emerald-500/40 cursor-pointer"
+                        onClick={() => setSelectedImageModal(report.resolutionPhotoUrl)}
                       />
                     ) : (
                       <div className="w-full h-28 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-slate-400 p-2 text-center">
@@ -389,8 +383,8 @@ export function CivicWatchLanding() {
                 <div>
                   <h4 className="text-sm font-bold text-white line-clamp-1">{report.address}</h4>
                   <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
-                    <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                    <span className="truncate">{report.concernedMunicipality}</span>
+                    <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                    <span className="truncate">{report.ward || report.area || 'Zone Sector'}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
                     <Layers className="w-3.5 h-3.5 text-purple-400 shrink-0" />
@@ -405,7 +399,7 @@ export function CivicWatchLanding() {
                   to={`/civicwatch/track?id=${report.reportId}`}
                   className="inline-flex items-center gap-1 text-xs font-bold text-teal-400 hover:text-teal-300"
                 >
-                  <span>Track Full Flow</span>
+                  <span>Track Status</span>
                   <ArrowRight className="w-3 h-3" />
                 </NavLink>
               </div>
@@ -414,9 +408,7 @@ export function CivicWatchLanding() {
         </div>
       </section>
 
-      {/* ========================================================
-          CIRCULAR VALUE RECOVERY INTEGRATION BANNER
-          ======================================================== */}
+      {/* CIRCULAR RECOVERY INTEGRATION BANNER */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-purple-500/30 bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 shadow-2xl">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -429,7 +421,7 @@ export function CivicWatchLanding() {
                 Civic Reports Are Connected to ReVastra Recovery Centres
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Unlike simple complaint apps that dump collected waste into overflowing landfills, ReVastra connects cleaned roadside waste with <strong>Resource Recovery Centres (RRCs)</strong> for secondary segregation, grading, weighing, and listing on the <strong>B2B Recycler Marketplace</strong>.
+                Unlike simple complaint portals that dump waste into overflowing landfills, ReVastra routes cleaned roadside waste to <strong>Resource Recovery Centres (RRCs)</strong> for secondary segregation, grading, weighing, and listing on the <strong>B2B Recycler Marketplace</strong>.
               </p>
             </div>
 
@@ -451,15 +443,13 @@ export function CivicWatchLanding() {
         </div>
       </section>
 
-      {/* ========================================================
-          PUBLIC FOOTER
-          ======================================================== */}
+      {/* PUBLIC FOOTER */}
       <footer className="border-t border-slate-800/80 py-8 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400 bg-slate-950/90">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-bold text-slate-300">
             <Leaf className="w-4 h-4 text-teal-400" />
             <span>ReVastra CivicWatch</span>
-            <span className="text-slate-400 font-normal">• Roadside Dumping Reporting & Municipal Response</span>
+            <span className="text-slate-400 font-normal">• Roadside Dumping Reporting & Rapid Remediation</span>
           </div>
 
           <div className="text-emerald-400 font-semibold">
@@ -468,11 +458,33 @@ export function CivicWatchLanding() {
 
           <div className="flex items-center gap-4 text-xs">
             <NavLink to="/civicwatch/track" className="hover:text-white transition-colors">Track Report</NavLink>
-            <NavLink to="/login/municipality" className="hover:text-white transition-colors">Municipality Login</NavLink>
-            <NavLink to="/role-selection" className="hover:text-white transition-colors">All Roles</NavLink>
+            <NavLink to="/civicwatch/report" className="hover:text-white transition-colors">Report Dumping</NavLink>
+            <NavLink to="/role-selection" className="hover:text-white transition-colors">All Portals</NavLink>
           </div>
         </div>
       </footer>
+
+      {/* PHOTO LIGHTBOX MODAL */}
+      {selectedImageModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setSelectedImageModal(null)}
+        >
+          <div className="relative max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden shadow-2xl p-2" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedImageModal(null)}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-slate-950/80 hover:bg-rose-600 text-white transition-colors z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={selectedImageModal}
+              alt="Evidence preview"
+              className="w-full max-h-[80vh] object-contain rounded-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
