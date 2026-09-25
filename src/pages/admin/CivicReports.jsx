@@ -42,16 +42,18 @@ export function AdminCivicReports() {
   const inProgressReports = reports.filter((r) => r.status === 'Assigned' || r.status === 'Cleanup in Progress').length;
   const resolvedReports = reports.filter((r) => r.status === 'Cleaned' || r.status === 'Closed').length;
 
-  // Filtered reports
   const filteredReports = reports.filter((r) => {
+    if (!r) return false;
     const matchesStatus = statusFilter === 'ALL' || r.status === statusFilter;
     const matchesWaste = wasteTypeFilter === 'ALL' || (r.wasteType && r.wasteType.toLowerCase().includes(wasteTypeFilter.toLowerCase()));
+    const searchLower = (searchTerm || '').toLowerCase();
     const matchesSearch =
-      r.reportId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.wasteType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (r.ward && r.ward.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (r.concernedMunicipality && r.concernedMunicipality.toLowerCase().includes(searchTerm.toLowerCase()));
+      !searchLower ||
+      (r.reportId || '').toLowerCase().includes(searchLower) ||
+      (r.address || '').toLowerCase().includes(searchLower) ||
+      (r.wasteType || '').toLowerCase().includes(searchLower) ||
+      (r.ward && r.ward.toLowerCase().includes(searchLower)) ||
+      (r.concernedMunicipality && r.concernedMunicipality.toLowerCase().includes(searchLower));
 
     return matchesStatus && matchesWaste && matchesSearch;
   });

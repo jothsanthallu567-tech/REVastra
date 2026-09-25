@@ -22,7 +22,8 @@ import {
   Image as ImageIcon,
   Building2,
   Eye,
-  X
+  X,
+  Truck
 } from 'lucide-react';
 
 export function CivicWatchLanding() {
@@ -34,8 +35,8 @@ export function CivicWatchLanding() {
 
   const reports = civicReports || [];
   const totalReports = reports.length;
-  const activeCleanups = reports.filter((r) => r.status === 'Cleanup in Progress' || r.status === 'Assigned').length;
-  const cleanedReports = reports.filter((r) => r.status === 'Cleaned' || r.status === 'Closed').length;
+  const activeCleanups = reports.filter((r) => r && (r.status === 'Cleanup in Progress' || r.status === 'Assigned')).length;
+  const cleanedReports = reports.filter((r) => r && (r.status === 'Cleaned' || r.status === 'Closed')).length;
 
   const handleTrackSubmit = (e) => {
     e.preventDefault();

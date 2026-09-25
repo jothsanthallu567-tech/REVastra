@@ -52,7 +52,7 @@ export function CivicWatchTrack() {
 
   const reports = civicReports || [];
   const activeReport = reports.find(
-    (r) => r.reportId.toUpperCase() === selectedReportId.trim().toUpperCase()
+    (r) => r && r.reportId && r.reportId.toUpperCase() === selectedReportId.trim().toUpperCase()
   ) || reports[0];
 
   const handleSearchSubmit = (e) => {

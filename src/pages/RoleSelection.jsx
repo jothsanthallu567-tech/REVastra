@@ -217,14 +217,13 @@ export function RoleSelection() {
                         <ArrowRight className="w-3.5 h-3.5" />
                       </NavLink>
 
-                      {r.signupUrl && (
-                        <NavLink
-                          to={r.signupUrl}
-                          className="w-full text-center py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-emerald-400 border border-emerald-500/30 hover:border-emerald-500/60 transition-colors block"
-                        >
-                          Register New Account
-                        </NavLink>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleQuickDemo(r.roleKey, r.dashboardUrl)}
+                        className="w-full text-center py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-emerald-400 border border-emerald-500/30 hover:border-emerald-500/60 transition-colors block cursor-pointer"
+                      >
+                        ⚡ Instant Access (Demo Login)
+                      </button>
                     </>
                   )}
                 </div>

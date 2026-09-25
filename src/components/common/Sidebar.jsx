@@ -26,7 +26,8 @@ import {
   Settings,
   ShieldCheck,
   Leaf,
-  ClipboardList
+  ClipboardList,
+  AlertTriangle
 } from 'lucide-react';
 
 export function Sidebar({ isOpen, setIsOpen }) {
